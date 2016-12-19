@@ -21,7 +21,7 @@ define_peak_region=function(x,col=c('chr','start','end'),size=100){
 ## Variables: 
 HRPEpiC_file='/srv/persistent/bliu2/rpe/data/atacseq/HRPEpiC/GSM736630_hg19_wgEncodeUwDnaseHrpePkRep1V2.narrowPeak.gz'
 gwas_file='../data/gwas/Fritsche_2015_AdvancedAMD.txt'
-rpe_file='../data/atacseq/rpe/out/peak/idr/pseudo_reps/rep1/rpe_rep1-pr.IDR0.1.filt.narrowPeak.gz'
+rpe_file='../data/atacseq/rpe/out/peak/macs2/overlap/Sample1_RPE_R1.trim.PE2SE.nodup.tn5.pf.pval0.1.500K.naive_overlap.narrowPeak.gz'
 Roadmap_dir='/mnt/data/epigenomeRoadmap/peaks/consolidated/narrowPeak/'
 
 # read GWAS data:
@@ -96,7 +96,7 @@ overlap_summary[,fraction_adj:=fraction/ratio]
 
 
 # plotting: 
-p=ggplot(overlap_summary,aes(x=threshold,y=fraction_adj*100,color=tissue,alpha=ifelse(tissue=='rpe'|tissue=='HRPEpiC',1,0.9)))+geom_line()+scale_x_log10(breaks=10^(-seq(3,7)))+ scale_alpha_continuous(guide = 'none')+theme_bw()+xlab('Threshold')+ylab('Percentage of unique overlaps')
+p=ggplot(overlap_summary,aes(x=threshold,y=fraction_adj*100,color=tissue,alpha=ifelse(tissue=='rpe'|tissue=='HRPEpiC',1,0.9)))+geom_line()+scale_x_log10(breaks=10^(-seq(3,7)))+ scale_alpha_continuous(guide = 'none')+theme_bw()+xlab('Threshold')+ylab('Percentage of unique overlaps')+annotate(geom='text',x=1e-7,y=1.2,label='rpe',hjust=-0.05)+annotate(geom='text',x=1e-7,y=1.0,label='HRPEpiC',hjust=-0.05)
 save_plot('../figures/gwas_atacseq_overlap/gwas_atacseq_overlap.unique.pdf',p,base_height=6,base_width=6)
 
 p1=ggplot(overlap_summary[threshold==1e-7,],aes(x=reorder(tissue,-fraction_adj,FUN=mean),y=fraction_adj*100,color=tissue))+geom_point()+scale_y_log10(breaks=10^(-seq(2,4,by=0.3)))+theme_bw()+scale_color_discrete(guide='none')+xlab('Tissue')+ylab('Percentage of unique overlaps')+theme(axis.text.x=element_text(angle=45,hjust=1))
