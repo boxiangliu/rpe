@@ -1,0 +1,25 @@
+Sample ID	Bam File	Notes
+020206-2	../data/rnaseq/galactose/020206-2_galactose_dedup.bam	galactose
+020310	../data/rnaseq/galactose/020310_Galactose_dedup.bam	galactose
+020311	../data/rnaseq/galactose/020311_Galactose_dedup.bam	galactose
+021010	../data/rnaseq/galactose/021010_galactose_dedup.bam	galactose
+021011	../data/rnaseq/galactose/021011_galactose_dedup.bam	galactose
+021512	../data/rnaseq/galactose/021512_Galactose_dedup.bam	galactose
+021611	../data/rnaseq/galactose/021611_galactose_dedup.bam	galactose
+030411	../data/rnaseq/galactose/030411_Galactose_dedup.bam	galactose
+032411	../data/rnaseq/galactose/032411_Galactose_dedup.bam	galactose
+041212-2944	../data/rnaseq/galactose/041212-2944_galactose_dedup.bam	galactose
+041212-9319	../data/rnaseq/galactose/041212-9319_galactose_dedup.bam	galactose
+051211	../data/rnaseq/galactose/051211_Galactose_dedup.bam	galactose
+052711-1	../data/rnaseq/galactose/052711-1_galactose_dedup.bam	galactose
+052711-2	../data/rnaseq/galactose/052711-2_Galactose_dedup.bam	galactose
+070810	../data/rnaseq/galactose/070810_galactose_dedup.bam	galactose
+071709	../data/rnaseq/galactose/071709_galactose_dedup.bam	galactose
+072910	../data/rnaseq/galactose/072910_galactose_dedup.bam	galactose
+080410	../data/rnaseq/galactose/080410_galactose_dedup.bam	galactose
+081209	../data/rnaseq/galactose/081209_galactose_dedup.bam	galactose
+081309	../data/rnaseq/galactose/081309_galactose_dedup.bam	galactose
+081508	../data/rnaseq/galactose/081508_galactose_dedup.bam	galactose
+081909	../data/rnaseq/galactose/081909_Galactose_dedup.bam	galactose
+082609	../data/rnaseq/galactose/082609_Galactose_dedup.bam	galactose
+091109	../data/rnaseq/galactose/091109_Galactose_dedup.bam	galactose

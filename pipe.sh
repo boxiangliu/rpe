@@ -24,4 +24,5 @@ mkdir rasqual ../processed_data/rasqual
 # Prepare data for RASQUAL:
 bash rasqual/prepare.sh
 bash rasqual/vcf2asvcf.sh
+python rasqual/calc_gcc.py /mnt/lab_data/montgomery/shared/genomes/hg19/hg19.fa ../../shared/annotation/gtex/gencode.v19.genes.v6p.hg19.gtf exon > ../processed_data/rasqual/gcc.exon.txt
 

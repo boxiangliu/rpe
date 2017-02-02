@@ -17,3 +17,7 @@ for i in {1..22}; do
 	tabix -p vcf /srv/persistent/bliu2/rpe/data/genotype/rpe.imputed.chr$i.dr2.vcf.gz
 done
 rm /srv/persistent/bliu2/rpe/data/genotype/rpe.imputed.chr{1..22}.vcf.gz
+
+
+# Copy count matrix from scg4: 
+scp bliu2@carmack.stanford.edu:/srv/gsfs0/projects/montgomery/nsabell/rpe/diffexp/final/filt/rpe_htseqcount_matrix.txt /srv/persistent/bliu2/rpe/data/rnaseq/count/
