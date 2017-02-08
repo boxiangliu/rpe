@@ -20,9 +20,9 @@ if sys.argv[3]=='gene':
 				chrom=split_line[0]
 				start=int(split_line[3])-1
 				end=int(split_line[4])
-				gene_name=split_line[8].split(';')[4].replace('gene_name ','').replace('"','')
+				gene_id=split_line[8].split(';')[0].replace('gene_id ','').replace('"','')
 				gcc=GC(genome[chrom][start:end].seq)
-				sys.stdout.write("%s\t%s\n"%(gene_name,gcc))
+				sys.stdout.write("%s\t%s\n"%(gene_id,gcc))
 
 elif sys.argv[3]=='exon':
 	with open(annotation_file,'r') as f:
@@ -31,25 +31,24 @@ elif sys.argv[3]=='exon':
 
 			split_line=line.strip().split('\t')
 			if split_line[2]=='gene':
-				gene_name=split_line[8].split(';')[4].replace('gene_name ','').replace('"','')
+				gene_id=split_line[8].split(';')[0].replace('gene_id ','').replace('"','')
 				try:
 					gcc=GC(seq)
-					sys.stdout.write("%s\t%s\n"%(gene_name_bak,gcc))
+					sys.stdout.write("%s\t%s\n"%(gene_id_bak,gcc))
 				except NameError: 
 					pass
 
 				# initialize:
 				seq=""
-				gene_name_bak=gene_name
+				gene_id_bak=gene_id
 
 			if split_line[2]=='exon':
 				chrom=split_line[0]
 				start=int(split_line[3])-1
 				end=int(split_line[4])
 				seq+=genome[chrom][start:end].seq
-		
 		gcc=GC(seq)
-		sys.stdout.write("%s\t%s\n"%(gene_name,gcc))
+		sys.stdout.write("%s\t%s\n"%(gene_id,gcc))
 
 else: 
 	sys.stderr.write('3rd option must be either gene or exon')

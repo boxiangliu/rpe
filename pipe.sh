@@ -28,3 +28,8 @@ bash rasqual/vcf2asvcf.sh
 python rasqual/calc_gcc.py /mnt/lab_data/montgomery/shared/genomes/hg19/hg19.fa ../../shared/annotation/gtex/gencode.v19.genes.v6p.hg19.gtf exon > ../processed_data/rasqual/gcc.exon.txt
 bash rasqual/htseq.sh
 
+# Run rasqual:
+date > start.time
+parallel -j10 bash rasqual/rasqual.sh ../processed_data/rasqual/input/rasqual.input.chr22.filt.txt {} ../processed_data/rasqual/expression/glucose.expression.bin ../processed_data/rasqual/expression/glucose.size_factors_gc.bin ../data/genotype/asvcf/glucose/rpe.imputed.chr22.all_filters.vcf.new.gz chr22 '2>' ../logs/rasqual/chr22/rasqual.chr22.{}.log ::: {1..396}
+date > end.time
+
