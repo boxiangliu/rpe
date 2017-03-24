@@ -12,7 +12,7 @@ read_and_merge=function(filenames,suffix,id){
 		x=fread(fname)
 		setnames(x,c(id,sample))
 		if (nrow(y)!=0){
-			y=merge(x,y,by=id)
+			y=merge(y,x,by=id)
 		} else {
 			y=x
 		}

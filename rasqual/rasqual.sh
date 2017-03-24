@@ -31,17 +31,6 @@ echo chromosome: $chr
 if [[ -e ../processed_data/rasqual/output/${gene_id}_${gene_name}.txt ]]; then 
 	echo "../processed_data/rasqual/output/${gene_id}_${gene_name}.txt exist! skipping..."
 else  
-	# tabix $vcf_file $region | \
-	# /srv/persistent/bliu2/tools/rasqual/src/rasqual \
-	# -y $Y \
-	# -k $K \
-	# -x $X \
-	# -n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
-	# -s $exon_start_positions -e $exon_end_positions \
-	# --imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
-	# -f ${gene_id}_${gene_name} --n_threads 10 \
-	# --force -v > ../processed_data/rasqual/output/$chr/${gene_id}_${gene_name}.txt
-
 	tabix $vcf_file $region | \
 	/srv/persistent/bliu2/tools/rasqual/bin/rasqual \
 	-y $Y \
@@ -49,6 +38,9 @@ else
 	-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
 	-s $exon_start_positions -e $exon_end_positions \
 	--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
+	--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
+	--minor-allele-frequency-fsnp 0.05 \
+	--cis-window-size $window_size \
 	-f ${gene_id}_${gene_name} --n_threads 1 \
-	--force -v > ../processed_data/rasqual/output/$chr/${gene_id}_${gene_name}.txt
+	--force -v --genotype-dosage > ../processed_data/rasqual/output/$chr/${gene_id}_${gene_name}.txt
 fi

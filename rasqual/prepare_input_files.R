@@ -2,6 +2,9 @@ library(data.table)
 library(dplyr)
 library(dtplyr)
 library(rasqualTools)
+library(doMC)
+library(foreach)
+registerDoMC(10)
 
 # Function: 
 remove_unexpressed=function(x){
@@ -36,7 +39,6 @@ glu=count_df%>%select(contains('lucose'))
 gla=count_df%>%select(contains('lactose'))
 
 
-
 # Save count matrix in both binary format and plain text format: 
 saveRasqualMatrices(list(glucose=glu,galactose=gla),"../processed_data/rasqual/expression/", file_suffix = "expression")
 
@@ -52,8 +54,9 @@ saveRasqualMatrices(list(glucose=glu,galactose=gla), "../processed_data/rasqual/
 
 
 # Generate rasqual input file: 
-for (i in 1:22){
-	system(sprintf('grep chr%s ../../shared/annotation/gtex/gencode.v19.genes.v6p.hg19.gtf | python rasqual/make_input.py ../data/genotype/asvcf/glucose/rpe.imputed.chr%s.all_filters.vcf.new.gz 1000000 > ../processed_data/rasqual/input/rasqual.input.chr%s.txt',i,i,i))
+foreach(i = 1:22)%dopar%{
+	print(paste0('chr',i))
+	system(sprintf('grep chr%s ../../shared/annotation/gtex/gencode.v19.genes.v6p.hg19.gtf | python rasqual/make_input.py ../data/genotype/asvcf/glucose/rpe.imputed.chr%s.all_filters.vcf.new.gz 1000000 > ../processed_data/rasqual/input/rasqual.input.chr%s.txt 2> ../processed_data/rasqual/logs/rasqual.input.chr%s.log',i,i,i,i))
 }
 
 
