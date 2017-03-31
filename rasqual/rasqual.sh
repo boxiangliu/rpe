@@ -7,7 +7,9 @@ Y=$3
 K=$4
 vcf_file=$5
 chr=$6
-# X=$7
+mode=$7 # total, ase, or joint
+out_dir=$8
+# X=$8
 
 param=($(cat $1 | sed "${line_num}q;d"))
 gene_id=${param[0]}
@@ -28,19 +30,55 @@ echo feature snps: $n_fsnp
 echo feature id: $feat_id
 echo chromosome: $chr
 
-if [[ -e ../processed_data/rasqual/output/${gene_id}_${gene_name}.txt ]]; then 
-	echo "../processed_data/rasqual/output/${gene_id}_${gene_name}.txt exist! skipping..."
-else  
-	tabix $vcf_file $region | \
-	/srv/persistent/bliu2/tools/rasqual/bin/rasqual \
-	-y $Y \
-	-k $K \
-	-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
-	-s $exon_start_positions -e $exon_end_positions \
-	--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
-	--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
-	--minor-allele-frequency-fsnp 0.05 \
-	--cis-window-size $window_size \
-	-f ${gene_id}_${gene_name} --n_threads 1 \
-	--force -v --genotype-dosage > ../processed_data/rasqual/output/$chr/${gene_id}_${gene_name}.txt
+
+if [[ ! -d $out_dir ]]; then mkdir -p $out_dir; fi
+
+if [[ -e ../processed_data/rasqual/output/$mode/$chr/${gene_id}_${gene_name}.txt ]]; then 
+	echo "../processed_data/rasqual/output/$mode/$chr/${gene_id}_${gene_name}.txt exist! skipping..."
+else
+	if [[ $mode == 'joint' ]]; then 
+		tabix $vcf_file $region | \
+		/srv/persistent/bliu2/tools/rasqual/bin/rasqual \
+		-y $Y \
+		-k $K \
+		-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
+		-s $exon_start_positions -e $exon_end_positions \
+		--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
+		--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
+		--minor-allele-frequency-fsnp 0.05 \
+		--cis-window-size $window_size \
+		-f ${gene_id}_${gene_name} --n_threads 1 \
+		--force -v --genotype-dosage > $out_dir/${gene_id}_${gene_name}.txt
+	elif [[ $mode == 'total' ]]; then 
+		tabix $vcf_file $region | \
+		/srv/persistent/bliu2/tools/rasqual/bin/rasqual \
+		--population-only \
+		-y $Y \
+		-k $K \
+		-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
+		-s $exon_start_positions -e $exon_end_positions \
+		--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
+		--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
+		--minor-allele-frequency-fsnp 0.05 \
+		--cis-window-size $window_size \
+		-f ${gene_id}_${gene_name} --n_threads 1 \
+		--force -v --genotype-dosage > $out_dir/${gene_id}_${gene_name}.txt
+	elif [[ $mode == 'ase' ]]; then
+		tabix $vcf_file $region | \
+		/srv/persistent/bliu2/tools/rasqual/bin/rasqual \
+		--as-only \
+		-y $Y \
+		-k $K \
+		-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
+		-s $exon_start_positions -e $exon_end_positions \
+		--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
+		--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
+		--minor-allele-frequency-fsnp 0.05 \
+		--cis-window-size $window_size \
+		-f ${gene_id}_${gene_name} --n_threads 1 \
+		--force -v --genotype-dosage > $out_dir/${gene_id}_${gene_name}.txt
+	else 
+		echo '--mode must be either total, ase, or joint!'
+	fi
+
 fi

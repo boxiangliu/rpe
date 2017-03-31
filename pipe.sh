@@ -30,9 +30,8 @@ bash rasqual/htseq.sh
 Rscript rasqual/htseq.merge.R
 Rscript rasqual/prepare_input_files.R
 
-# Run rasqual:
-parallel -j10 bash rasqual/rasqual.sh ../processed_data/rasqual/input/rasqual.input.chr22.filt.txt {} ../processed_data/rasqual/expression/glucose.expression.bin ../processed_data/rasqual/expression/glucose.size_factors_gc.bin ../data/genotype/asvcf/glucose/rpe.imputed.chr22.all_filters.vcf.new.gz chr22 '2>' ../logs/rasqual/chr22/rasqual.chr22.{}.log ::: {1..396}
-
+# Test RASQUAL (only 50 genes in joint, total, and ase mode):
+bash rasqual/test_rasqual.sh
 
 #------- FastQTL ---------------
 # Setup: 
@@ -50,3 +49,8 @@ bgzip ../processed_data/fastqtl/expression/galactose.bed && tabix -p bed ../proc
 # Run FastQTL:
 bash fastqtl/run_fastqtl.sh
 Rscript fastqtl/plot_pvalue_distribution.R
+
+
+# Compare FastQTL and RASQUAL:
+Rscript compare_fastQTL_and_RASQUAL.R
+
