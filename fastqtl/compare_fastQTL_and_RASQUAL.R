@@ -47,3 +47,21 @@ dev.off()
 png('../figures/fastqtl/compare_fastQTL_with_RASQUAL.png')
 pairs(~logpval_fas+logpval_ras_total+logpval_ras_ase+logpval_ras_joint,merged)
 dev.off()
+
+
+# Find p-value threshold in total count model below which joint model would not be significant: 
+merged[pval_ras_total>0.1&pval_ras_joint<0.05]
+nrow(merged)
+nrow(merged[pval_ras_total<0.05])
+nrow(merged[pval_ras_joint<0.05])
+nrow(merged[pval_ras_joint<0.01])
+
+cutoff=seq(0.1,1,0.1)
+num_sig=integer(length(cutoff))
+for (i in seq_along(cutoff)){
+	num_sig[i]=nrow(merged[pval_ras_total<=cutoff[i]&pval_ras_joint<=0.05])
+	pct_sig=(num_sig/num_sig[length(num_sig)])*100
+}
+data=data.frame(num_sig=num_sig,pct_sig=pct_sig,cutoff=cutoff)
+p=ggplot(data,aes(x=as.character(cutoff),y=num_sig,label=sprintf("%.2f%%",pct_sig)))+geom_bar(stat='identity')+geom_text(nudge_y=300)+xlab('Total-read model p-value cutoff')+ylab('eQTL in joint model (p-value < 0.05) ')
+save_plot('../figures/fastqtl/num_sig_eqtl_vs_pval_cutoff.pdf',p,base_height=8,base_width=9)
