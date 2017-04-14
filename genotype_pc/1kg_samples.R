@@ -4,8 +4,11 @@ in_fn='/srv/persistent/bliu2/shared/1000genomes/phase3v5a/integrated_call_sample
 out_dir='../processed_data/genotype_pc/1kg_samples/'
 if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=T)}
 
+panel=fread(in_fn)
+
 set.seed(42)
 samples=panel[,list(sample=sample(sample,4,replace=FALSE)),by='pop']
 samples=merge(samples,panel,by=c('sample','pop'),sort=FALSE)
 
 fwrite(samples,sprintf('%s/4_sample_each_pop.panel',out_dir),sep='\t')
+fwrite(samples[,'sample',with=F],sprintf('%s/4_sample_each_pop.txt',out_dir),sep='\t',col.names=F)
