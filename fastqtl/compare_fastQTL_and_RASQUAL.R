@@ -3,6 +3,9 @@ library(stringr)
 library(cowplot)
 library(dplyr)
 
+fig_dir='../figures/fastqtl/compare_fastQTL_with_RASQUAL/'
+if (!dir.exists(fig_dir)) {dir.create(fig_dir)}
+
 # Read FastQTL result: 
 fas=fread('zcat ../processed_data/fastqtl/eqtl/nominal_pass.glucose.txt.gz',col.names=c('fid','sid','dist','pval','beta','se'))
 
@@ -29,18 +32,24 @@ ras_ase[,pval:=pchisq(q=chisq,df=1,lower.tail=F)]
 ras_joint[,pval:=pchisq(q=chisq,df=1,lower.tail=F)]
 
 
+# Calculate slope (beta) for RASUQAL:
+ras_total[,beta:=2*pi-1]
+ras_ase[,beta:=2*pi-1]
+ras_joint[,beta:=2*pi-1]
+
+
 # Remove variants without RS id:
 fas=fas[sid!='.']
 
 
 # Merge FastQTL and RASQUAL result: 
-merged=merge(fas%>%select(fid,sid,pval_fas=pval),ras_total%>%select(fid,sid,pval_ras_total=pval),by=c('fid','sid'))
-merged=merge(merged,ras_ase%>%select(fid,sid,pval_ras_ase=pval),by=c('fid','sid'))
-merged=merge(merged,ras_joint%>%select(fid,sid,pval_ras_joint=pval),by=c('fid','sid'))
+merged=merge(fas%>%select(fid,sid,pval_fas=pval,beta_fas=beta),ras_total%>%select(fid,sid,pval_ras_total=pval,beta_ras_total=beta),by=c('fid','sid'))
+merged=merge(merged,ras_ase%>%select(fid,sid,pval_ras_ase=pval,beta_ras_ase=beta),by=c('fid','sid'))
+merged=merge(merged,ras_joint%>%select(fid,sid,pval_ras_joint=pval,beta_ras_joint=beta),by=c('fid','sid'))
 merged[,c('logpval_fas','logpval_ras_total','logpval_ras_ase','logpval_ras_joint'):=list(-log10(pval_fas),-log10(pval_ras_total),-log10(pval_ras_ase),-log10(pval_ras_joint))]
 
 
-# Make scatterplot:
+# Make scatterplot of p-value:
 pdf('../figures/fastqtl/compare_fastQTL_with_RASQUAL.pdf',height=16,width=16)
 pairs(~logpval_fas+logpval_ras_total+logpval_ras_ase+logpval_ras_joint,merged)
 dev.off()
@@ -49,13 +58,21 @@ pairs(~logpval_fas+logpval_ras_total+logpval_ras_ase+logpval_ras_joint,merged)
 dev.off()
 
 
-# Find p-value threshold in total count model below which joint model would not be significant: 
-merged[pval_ras_total>0.1&pval_ras_joint<0.05]
-nrow(merged)
-nrow(merged[pval_ras_total<0.05])
-nrow(merged[pval_ras_joint<0.05])
-nrow(merged[pval_ras_joint<0.01])
+# Make scatterplot of effect size:
+with(merged,plot(beta_fas,beta_ras_total))
+with(merged,plot(beta_ras_total,beta_ras_ase))
+with(merged,plot(beta_ras_ase,beta_ras_joint))
+with(merged,plot(beta_ras_total,beta_ras_joint))
+hist(merged$beta_ras_ase,breaks=100)
+pdf(sprintf('%s/compare_fastQTL_with_RASQUAL.effect_size.pdf',fig_dir),height=16,width=16)
+pairs(~beta_fas+beta_ras_total+beta_ras_ase+beta_ras_joint,merged)
+dev.off()
 
+png(sprintf('%s/compare_fastQTL_with_RASQUAL.effect_size.png',fig_dir),height=960,width=960)
+pairs(~beta_fas+beta_ras_total+beta_ras_ase+beta_ras_joint,merged)
+dev.off()
+
+# Find p-value threshold in total count model below which joint model would not be significant: 
 cutoff=seq(0.1,1,0.1)
 num_sig=integer(length(cutoff))
 for (i in seq_along(cutoff)){

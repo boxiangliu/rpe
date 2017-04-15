@@ -1,14 +1,13 @@
 # run RASQUAL
-# bash rasqual.sh <input parameter file> <line number> Y.bin K.bin VCF chr# X.bin
+# bash rasqual.sh <input parameter file> <line number> Y.bin K.bin VCF X.bin
 
 param_file=$1
 line_num=$2
 Y=$3
 K=$4
 vcf_file=$5
-chr=$6
-mode=$7 # total, ase, or joint
-out_dir=$8
+mode=$6 # total, ase, or joint
+out_dir=$7
 # X=$8
 
 param=($(cat $1 | sed "${line_num}q;d"))
@@ -28,13 +27,13 @@ echo region: $region
 echo reference snps: $n_rsnp
 echo feature snps: $n_fsnp
 echo feature id: $feat_id
-echo chromosome: $chr
+
 
 
 if [[ ! -d $out_dir ]]; then mkdir -p $out_dir; fi
 
-if [[ -e ../processed_data/rasqual/output/$mode/$chr/${gene_id}_${gene_name}.txt ]]; then 
-	echo "../processed_data/rasqual/output/$mode/$chr/${gene_id}_${gene_name}.txt exist! skipping..."
+if [[ -e $out_dir/${gene_id}_${gene_name}.txt ]]; then 
+	echo "$out_dir/${gene_id}_${gene_name}.txt exist! skipping..."
 else
 	if [[ $mode == 'joint' ]]; then 
 		tabix $vcf_file $region | \
