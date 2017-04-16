@@ -6,6 +6,7 @@ library(stringr)
 library(cowplot)
 library(ggrepel)
 library(gtools)
+
 rpe_dir='../processed_data/genotype_pc/preprocess_vcf/rpe'
 okg_dir='../processed_data/genotype_pc/preprocess_vcf/1kg'
 out_dir='../processed_data/genotype_pc/genotype_pc/'
@@ -94,6 +95,7 @@ to_plot=merge(to_plot,panel,by='sample',all=T,sort=FALSE)
 setDT(to_plot)
 to_plot[,super_pop:=ifelse(is.na(super_pop),'unknown',super_pop)]
 to_plot[,label:=ifelse(super_pop=='unknown',sample,'')]
+
 
 pdf(sprintf("%s/pc_with_1kg.pdf",fig_dir))
 plot(pc)

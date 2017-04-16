@@ -86,4 +86,15 @@ bash genotype_pc/preprocess_vcf.sh
 Rscript genotype_pc/genotype_pc.R
 
 
-# 
+#----------- sex ---------------
+# Setup: 
+mkdir -p sex ../processed_data/sex ../figures/sex
+
+
+# Extract chromsome X: 
+bash sex/preprocess_vcf.sh 
+
+
+# Determine sex: 
+Rscript sex/sex.R
+
