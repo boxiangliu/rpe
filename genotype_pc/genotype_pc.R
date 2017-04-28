@@ -103,3 +103,72 @@ ggplot(to_plot,aes(PC1,PC2,color=super_pop,label=label))+geom_point(size=5,alpha
 ggplot(to_plot,aes(PC1,PC3,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
 ggplot(to_plot,aes(PC2,PC3,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
 dev.off()
+
+
+# Remove duplicate sample 021011:
+dosage$`021011`=NULL
+
+
+# PCA:
+dosage_t=t(dosage)
+pc=prcomp(dosage_t,center=TRUE,scale=FALSE)
+
+
+# Save PCA results:
+out=as.data.frame(pc$x)
+out$sample=rownames(out)
+setcolorder(out,c(ncol(out),1:(ncol(out)-1)))
+fwrite(out,sprintf('%s/pc_nodup.tsv',out_dir),sep='\t')
+
+
+# Plot the first few PCs: 
+to_plot=as.data.frame(pc$x[,1:10])
+to_plot$sample=rownames(to_plot)
+pdf(sprintf("%s/pc_nodup.pdf",fig_dir))
+plot(pc)
+ggplot(to_plot,aes(PC1,PC2,label=sample))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
+ggplot(to_plot,aes(PC1,PC3,label=sample))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
+ggplot(to_plot,aes(PC2,PC3,label=sample))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
+dev.off()
+
+
+# Merge RPE and 1kg:
+dosage$ID=rownames(dosage)
+setDT(dosage)
+dosage_merged=merge(dosage,dosage_1kg_chr1,by='ID',sort=FALSE)
+setDF(dosage_merged)
+rownames(dosage_merged)=dosage_merged$ID
+dosage_merged$ID=NULL
+
+
+# Perform PCA:
+dosage_merged_t=t(dosage_merged)
+pc=prcomp(dosage_merged_t,center=TRUE,scale=FALSE)
+
+
+# Save PCA results:
+out=as.data.frame(pc$x)
+out$sample=rownames(out)
+setcolorder(out,c(ncol(out),1:(ncol(out)-1)))
+fwrite(out,sprintf('%s/pc_with_1kg_nodup.tsv',out_dir),sep='\t')
+
+
+# Read in 1kg panel file:
+panel=fread('../processed_data/genotype_pc/1kg_samples/4_sample_each_pop.panel')
+
+
+# Plot the first few PCs: 
+to_plot=as.data.frame(pc$x[,1:10])
+to_plot$sample=rownames(to_plot)
+to_plot=merge(to_plot,panel,by='sample',all=T,sort=FALSE)
+setDT(to_plot)
+to_plot[,super_pop:=ifelse(is.na(super_pop),'unknown',super_pop)]
+to_plot[,label:=ifelse(super_pop=='unknown',sample,'')]
+
+
+pdf(sprintf("%s/pc_with_1kg_nodup.pdf",fig_dir))
+plot(pc)
+ggplot(to_plot,aes(PC1,PC2,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
+ggplot(to_plot,aes(PC1,PC3,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
+ggplot(to_plot,aes(PC2,PC3,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
+dev.off()

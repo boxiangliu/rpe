@@ -12,7 +12,7 @@ if (!dir.exists(cov_dir)) {dir.create(cov_dir,recursive=TRUE)}
 if (!dir.exists(log_dir)) {dir.create(log_dir,recursive=TRUE)}
 if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
 
-# Glucose: 
+# Glucose:
 cov_fn='../processed_data/select_covariates/merge_covariates/glu_sex_geno_sva.tsv'
 cov=fread(cov_fn)
 setorder(cov,sample)
