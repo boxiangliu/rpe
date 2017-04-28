@@ -26,6 +26,7 @@ bash rasqual/addreadgroup.sh
 bash rasqual/prepare.sh
 bash rasqual/vcf2asvcf.sh
 bash rasqual/change_sid.sh
+bash rasqual/remove_dup_from_vcf.sh
 python rasqual/calc_gcc.py /mnt/lab_data/montgomery/shared/genomes/hg19/hg19.fa ../../shared/annotation/gtex/gencode.v19.genes.v6p.hg19.gtf exon > ../processed_data/rasqual/gcc.exon.txt
 bash rasqual/htseq.sh
 Rscript rasqual/htseq.merge.R
@@ -55,6 +56,7 @@ Rscript fastqtl/plot_pvalue_distribution.R
 
 # Compare FastQTL and RASQUAL:
 Rscript compare_fastQTL_and_RASQUAL.R
+
 
 #-------- compare models -----------
 # Setup: 
@@ -97,4 +99,16 @@ bash sex/preprocess_vcf.sh
 
 # Determine sex: 
 Rscript sex/sex.R
+
+#----------- select covariates -----------
+# Setup: 
+mkdir -p select_covariates ../processed_data/select_covariates ../figures/select_covariates
+
+
+# Merge covariates: 
+Rscript select_covariates/merge_covariates.R
+
+
+# Test different combinations of covariates: 
+Rscript select_covariates/select_covariates.R
 

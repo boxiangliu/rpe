@@ -34,6 +34,11 @@ count_df=subset_to_protein_and_lncRNA(count_df)
 count_df=remove_unexpressed(count_df)
 
 
+# Remove duplicate sample 021011: 
+count_df$`021011.glucose`=NULL
+count_df$`021011.galactose`=NULL
+
+
 # Split count matrix into glucose and galactose: 
 glu=count_df%>%select(contains('lucose'))
 gla=count_df%>%select(contains('lactose'))
