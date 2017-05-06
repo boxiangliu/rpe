@@ -21,14 +21,20 @@ exon_start_positions=${param[5]}
 exon_end_positions=${param[6]}
 feat_id=$(grep $gene_id -n ../processed_data/rasqual/expression/glucose.expression.txt | cut -d":" -f1,1) # The line number corresponding to the gene_id.
 window_size=2000000
-n_sample=24
+n_sample=23
+echo =================== INPUT ===================
+echo param: $param_file
+echo genotype: $vcf_file
+echo expression: $Y
+echo offset: $K
+echo covariates: $X
+echo mode: $mode
+echo output: $out_dir
 echo id: $gene_id 
 echo name: $gene_name 
 echo region: $region
-echo reference snps: $n_rsnp
-echo feature snps: $n_fsnp
-echo feature id: $feat_id
-
+echo =============================================
+echo ""
 
 
 if [[ ! -d $out_dir ]]; then mkdir -p $out_dir; fi

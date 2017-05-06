@@ -15,6 +15,52 @@ bash gwas_atacseq_overlap/download.sh
 # Overlap GWAS and RPE ATACseq and compare to Encode and Roadmap samples:
 Rscript gwas_atacseq_overlap/overlap.gwas_thresholding.R 
 
+#-------- genotype PC -------------
+# Setup: 
+mkdir -p genotype_pc ../processed_data/genotype_pc ../figures/genotype_pc
+
+
+# Pick random 1000 Genome samples:
+Rscript genotype_pc/1kg_samples.R
+
+
+# Extract dosage from VCF files: 
+bash genotype_pc/preprocess_vcf.sh
+
+
+# Do PCA on genotype dosage: 
+Rscript genotype_pc/genotype_pc.R
+
+
+#----------- sex ---------------
+# Setup: 
+mkdir -p sex ../processed_data/sex ../figures/sex
+
+
+# Extract chromsome X: 
+bash sex/preprocess_vcf.sh 
+
+
+# Determine sex: 
+Rscript sex/sex.R
+
+
+#----------- select covariates -----------
+# Setup: 
+mkdir -p select_covariates ../processed_data/select_covariates ../figures/select_covariates
+
+
+# Merge covariates: 
+Rscript select_covariates/merge_covariates.R
+
+
+# Test different combinations of covariates: 
+Rscript select_covariates/select_covariates.R
+
+
+# Compare covariates: 
+Rscript select_covariates/compare_covariates.R
+
 
 #-------- RASQUAL --------------
 # Setup: 
@@ -35,6 +81,11 @@ Rscript rasqual/prepare_input_files.R
 # Test RASQUAL (only 50 genes in joint, total, and ase mode):
 bash rasqual/test/test_rasqual.sh
 bash rasqual/test/test_rasqual_chr22.sh
+
+
+# Refer to "compare models" and "select covariates"
+# Running RASQUAL:
+bash rasqual/rasqual.wrapper.sh
 
 #------- FastQTL ---------------
 # Setup: 
@@ -71,44 +122,4 @@ bash compare_models/define_gtex_eqtl.sh
 Rscript compare_models/compare_with_gtex.R
 
 
-#-------- genotype PC -------------
-# Setup: 
-mkdir -p genotype_pc ../processed_data/genotype_pc ../figures/genotype_pc
-
-
-# Pick random 1000 Genome samples:
-Rscript genotype_pc/1kg_samples.R
-
-
-# Extract dosage from VCF files: 
-bash genotype_pc/preprocess_vcf.sh
-
-
-# Do PCA on genotype dosage: 
-Rscript genotype_pc/genotype_pc.R
-
-
-#----------- sex ---------------
-# Setup: 
-mkdir -p sex ../processed_data/sex ../figures/sex
-
-
-# Extract chromsome X: 
-bash sex/preprocess_vcf.sh 
-
-
-# Determine sex: 
-Rscript sex/sex.R
-
-#----------- select covariates -----------
-# Setup: 
-mkdir -p select_covariates ../processed_data/select_covariates ../figures/select_covariates
-
-
-# Merge covariates: 
-Rscript select_covariates/merge_covariates.R
-
-
-# Test different combinations of covariates: 
-Rscript select_covariates/select_covariates.R
 

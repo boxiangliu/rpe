@@ -1,18 +1,14 @@
 library(data.table)
 library(stringr)
- 
+
 # Variables
 out_dir='../processed_data/select_covariates/merge_covariates'
 if (!dir.exists(out_dir)){dir.create(out_dir,recursive=TRUE)}
 
 sex_fn='../processed_data/sex/sex/gender.tsv'
-geno_pc_fn='../processed_data/genotype_pc/genotype_pc/pc.tsv'
-glu_sva_fn='../processed_data/hidden_covariates/sva/glucose_SVAFact4_MeanGeq10_ZeroLeq20.txt'
-glu_peer_fn=''
-glu_pc_fn=''
-gal_sva_fn='../processed_data/hidden_covariates/sva/galactose_SVAFact5_MeanGeq10_ZeroLeq20.txt'
-gal_peer_fn=''
-gal_pc_fn=''
+geno_pc_fn='../processed_data/genotype_pc/genotype_pc/pc_nodup.tsv'
+glu_sva_fn='../processed_data/hidden_covariates/sva/glucose_LibSizCorr_SVAFact4_MeanGeq10_ZeroLeq20.txt'
+gal_sva_fn='../processed_data/hidden_covariates/sva/galactose_LibSizCorr_SVAFact5_MeanGeq10_ZeroLeq20.txt'
 dna2rna_fn='../data/meta/dna2rna.txt'
 
 
@@ -40,7 +36,6 @@ gal_sva[,sample:=str_replace_all(sample,'\\.','-')]
 
 # Merge:
 for (condition in c('glu','gal')){
-	# for (method in c('sva','peer','pca')){
 	for (method in c('sva')){
 		x=get(sprintf('%s_%s',condition,method))
 		merged=merge(merge(sex,geno_pc[,list(sample,PC1,PC2,PC3)],by='sample'),x,by='sample')
