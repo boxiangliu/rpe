@@ -6,8 +6,11 @@ library(TreeQTL)
 
 in_dir_glu='../processed_data/select_covariates/select_covariates/glucose/'
 in_dir_gal='../processed_data/select_covariates/select_covariates/galactose/'
-fig_dir='../figures/select_covariates/compare_covariates/'
-if (!dir.exists(fig_dir)) dir.create(fig_dir,recursive=TRUE)
+fig_dir_glu_glu='../figures/select_covariates/compare_covariates/glucose/'
+fig_dir_glu_gal='../figures/select_covariates/compare_covariates/galactose/'
+
+if (!dir.exists(fig_dir_glu_glu)) dir.create(fig_dir_glu_glu,recursive=TRUE)
+if (!dir.exists(fig_dir_glu_gal)) dir.create(fig_dir_glu_gal,recursive=TRUE)
 
 # Functions:
 get_gene_map=function(){
@@ -100,6 +103,8 @@ treeQTL_eGenes=function(meqtl,snp_map,gene_map,level1=0.05,level2=0.05,tmp_dir='
 	return(eGenes)
 }
 
+
+#------------- Glucose -------------
 # Read RASQUAL result: 
 tmp_file=tempfile()
 joint_ls=list()
@@ -146,7 +151,7 @@ for (i in 1:length(joint_ls)){
 	sig=rbind(sig,data.frame(cov=cov[i],n=sum(joint_adj_ls[[i]]$BBFDR<0.05)))
 }
 p1=ggplot(sig,aes(cov,n))+geom_point(size=5)+geom_line(aes(group=1))+ggtitle('eAssociation')+theme(axis.text.x=element_text(angle=90))
-save_plot(sprintf('%s/eAssociation_vs_cov.pdf',fig_dir),p1)
+save_plot(sprintf('%s/eAssociation_vs_cov.pdf',fig_dir_glu),p1)
 
 
 # Correct on eGene level: 
@@ -168,7 +173,7 @@ for (i in 1:length(joint_ls)){
 	sig=rbind(sig,data.frame(cov=cov[i],n=sum(joint_adj_ls[[i]]$fam_p<0.05)))
 }
 p2=ggplot(sig,aes(cov,n))+geom_point(size=5)+geom_line(aes(group=1))+ggtitle('eGenes')+theme(axis.text.x=element_text(angle=90))
-save_plot(sprintf('%s/eGenes_vs_cov.pdf',fig_dir),p2)
+save_plot(sprintf('%s/eGenes_vs_cov.pdf',fig_dir_glu),p2)
 
 
 # Correct on eSNP level: 
@@ -190,4 +195,99 @@ for (i in 1:length(joint_ls)){
 	sig=rbind(sig,data.frame(cov=cov[i],n=sum(joint_adj_ls[[i]]$fam_p<0.05)))
 }
 p3=ggplot(sig,aes(cov,n))+geom_point(size=5)+geom_line(aes(group=1))+ggtitle('eSNP')+theme(axis.text.x=element_text(angle=90))
-save_plot(sprintf('%s/eSNP_vs_cov.pdf',fig_dir),p3)
+save_plot(sprintf('%s/eSNP_vs_cov.pdf',fig_dir_glu),p3)
+
+
+
+#------------- Galactose ------------------
+# Read RASQUAL result: 
+tmp_file=tempfile()
+joint_ls=list()
+for (n in 1:9){
+	print(sprintf('INFO - %s covariates..',n))
+	# Read RASQUAL result:
+	system(sprintf("cat %s/chr22/cov%s/*.txt | awk '{print $1,$2,$10,$11,$12}' > %s",in_dir_gal,n,tmp_file))
+	joint=fread(tmp_file,col.names=c('fid','sid','log10qval','chisq','pi'))
+
+
+	# Take the ensembl ID as fid:
+	joint[,fid:=str_split_fixed(fid,'_',2)[,1]]
+
+
+	# Calculate p-value from chisq stat: 
+	joint[,pval:=pchisq(q=chisq,df=1,lower.tail=F)]
+
+
+	# Reorder based on p-value: 
+	setorder(joint,pval)
+	joint_ls[[n]]=joint
+}
+file.remove(tmp_file)
+
+
+# Multiple hypothesis correction using TreeQTL:
+gene_map=get_gene_map()
+joint_adj_ls=list()
+
+for (i in 1:length(joint_ls)){
+	joint=joint_ls[[i]]
+	meqtl=joint[,list(SNP=sid,gene=fid,beta=-1,`t-stat`=-1,`p-value`=pval,FDR=-1)]
+	snp_map=get_snp_map(meqtl$SNP)
+	joint_adj=treeQTL(meqtl,snp_map,gene_map,level1=0.05,level2=0.05,eSNP=TRUE)
+	setorder(joint_adj,BBFDR)
+	joint_adj_ls[[i]]=joint_adj
+}
+
+
+# Count the number of significant associations:
+cov=c('sex',paste0('genoPC',1:3),paste0('sva',1:5))
+sig=data.frame()
+for (i in 1:length(joint_ls)){
+	sig=rbind(sig,data.frame(cov=cov[i],n=sum(joint_adj_ls[[i]]$BBFDR<0.05)))
+}
+p1=ggplot(sig,aes(cov,n))+geom_point(size=5)+geom_line(aes(group=1))+ggtitle('eAssociation')+theme(axis.text.x=element_text(angle=90))
+save_plot(sprintf('%s/eAssociation_vs_cov.pdf',fig_dir_gal),p1)
+
+
+# Correct on eGene level: 
+joint_adj_ls=list()
+for (i in 1:length(joint_ls)){
+	joint=joint_ls[[i]]
+	meqtl=joint[,list(SNP=sid,gene=fid,beta=-1,`t-stat`=-1,`p-value`=pval,FDR=-1)]
+	snp_map=get_snp_map(meqtl$SNP)
+	joint_adj=treeQTL_eGenes(meqtl,snp_map,gene_map,level1=0.05,level2=0.05)
+	setorder(joint_adj,fam_p)
+	joint_adj_ls[[i]]=joint_adj
+}
+
+
+# Count the number of significant eGenes:
+cov=c('sex',paste0('genoPC',1:3),paste0('sva',1:5))
+sig=data.frame()
+for (i in 1:length(joint_ls)){
+	sig=rbind(sig,data.frame(cov=cov[i],n=sum(joint_adj_ls[[i]]$fam_p<0.05)))
+}
+p2=ggplot(sig,aes(cov,n))+geom_point(size=5)+geom_line(aes(group=1))+ggtitle('eGenes')+theme(axis.text.x=element_text(angle=90))
+save_plot(sprintf('%s/eGenes_vs_cov.pdf',fig_dir_gal),p2)
+
+
+# Correct on eSNP level: 
+joint_adj_ls=list()
+for (i in 1:length(joint_ls)){
+	joint=joint_ls[[i]]
+	meqtl=joint[,list(SNP=sid,gene=fid,beta=-1,`t-stat`=-1,`p-value`=pval,FDR=-1)]
+	snp_map=get_snp_map(meqtl$SNP)
+	joint_adj=treeQTL_eSNP(meqtl,snp_map,gene_map,level1=0.05,level2=0.05)
+	setorder(joint_adj,fam_p)
+	joint_adj_ls[[i]]=joint_adj
+}
+
+
+# Count the number of significant eSNPs:
+cov=c('sex',paste0('genoPC',1:3),paste0('sva',1:5))
+sig=data.frame()
+for (i in 1:length(joint_ls)){
+	sig=rbind(sig,data.frame(cov=cov[i],n=sum(joint_adj_ls[[i]]$fam_p<0.05)))
+}
+p3=ggplot(sig,aes(cov,n))+geom_point(size=5)+geom_line(aes(group=1))+ggtitle('eSNP')+theme(axis.text.x=element_text(angle=90))
+save_plot(sprintf('%s/eSNP_vs_cov.pdf',fig_dir_gal),p3)

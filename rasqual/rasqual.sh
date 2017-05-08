@@ -53,8 +53,6 @@ if [[ $X == 'null' ]]; then
 			-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
 			-s $exon_start_positions -e $exon_end_positions \
 			--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
-			--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
-			--minor-allele-frequency-fsnp 0.05 \
 			--cis-window-size $window_size \
 			-f ${gene_id}_${gene_name} --n_threads 1 \
 			--force -v --genotype-dosage > $out_dir/${gene_id}_${gene_name}.txt
@@ -67,8 +65,6 @@ if [[ $X == 'null' ]]; then
 			-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
 			-s $exon_start_positions -e $exon_end_positions \
 			--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
-			--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
-			--minor-allele-frequency-fsnp 0.05 \
 			--cis-window-size $window_size \
 			-f ${gene_id}_${gene_name} --n_threads 1 \
 			--force -v --genotype-dosage > $out_dir/${gene_id}_${gene_name}.txt
@@ -81,8 +77,6 @@ if [[ $X == 'null' ]]; then
 			-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
 			-s $exon_start_positions -e $exon_end_positions \
 			--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
-			--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
-			--minor-allele-frequency-fsnp 0.05 \
 			--cis-window-size $window_size \
 			-f ${gene_id}_${gene_name} --n_threads 1 \
 			--force -v --genotype-dosage > $out_dir/${gene_id}_${gene_name}.txt
@@ -103,8 +97,6 @@ else
 			-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
 			-s $exon_start_positions -e $exon_end_positions \
 			--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
-			--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
-			--minor-allele-frequency-fsnp 0.05 \
 			--cis-window-size $window_size \
 			-f ${gene_id}_${gene_name} --n_threads 1 \
 			--force -v --genotype-dosage > $out_dir/${gene_id}_${gene_name}.txt
@@ -116,8 +108,6 @@ else
 			-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
 			-s $exon_start_positions -e $exon_end_positions \
 			--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
-			--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
-			--minor-allele-frequency-fsnp 0.05 \
 			--cis-window-size $window_size \
 			-f ${gene_id}_${gene_name} --n_threads 1 \
 			--force -v --genotype-dosage > $out_dir/${gene_id}_${gene_name}.txt
@@ -129,8 +119,6 @@ else
 			-n $n_sample -j $feat_id -l $n_rsnp -m $n_fsnp \
 			-s $exon_start_positions -e $exon_end_positions \
 			--imputation-quality 0.8 --imputation-quality-fsnp 0.8 \
-			--minor-allele-frequency 0.05 --hardy-weinberg-pvalue 0.0 \
-			--minor-allele-frequency-fsnp 0.05 \
 			--cis-window-size $window_size \
 			-f ${gene_id}_${gene_name} --n_threads 1 \
 			--force -v --genotype-dosage > $out_dir/${gene_id}_${gene_name}.txt
