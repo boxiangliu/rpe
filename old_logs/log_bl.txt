@@ -12,3 +12,5 @@ GenomeStudio can generate a Final Report using these four tables. Final Report c
 I emailed Melissa for contact of the genomic center. They will provide instructions on GenomeStudio. 
 
 for future reference, this is a pipeline for genotype QC:https://www.biostars.org/p/176238/
+
+#### 160819
