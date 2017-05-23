@@ -1,0 +1,10 @@
+# make p-value histogram
+library(data.table)
+library(dplyr)
+library(dtplyr)
+qtl=fread('zcat ../processed_data/fastqtl/eqtl/nominal_pass.glucose.txt.gz')
+setnames(qtl,c('gene','snp','dist','pval','slope','se'))
+pdf('../figures/fastqtl/pvalue_distribution.pdf')
+hist(qtl$pval,breaks=1000,main='MAF > 0.05',xlab='p-value')
+qqnorm(qtl$pval)
+dev.off()

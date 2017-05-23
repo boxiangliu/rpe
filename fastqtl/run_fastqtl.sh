@@ -1,0 +1,1 @@
+/users/zappala/software/fastqtl/bin/fastQTL  --maf-threshold 0.05 --seed 42 --normal --vcf ../data/genotype/filt/rpe.imputed.chr22.all_filters.vcf.gz --bed ../processed_data/fastqtl/expression/glucose.bed.gz --region chr22 --out ../processed_data/fastqtl/eqtl/nominal_pass.glucose.txt.gz
