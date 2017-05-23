@@ -86,6 +86,7 @@ bash rasqual/test/test_rasqual_chr22.sh
 # Refer to "compare models" and "select covariates"
 # Running RASQUAL:
 bash rasqual/rasqual.wrapper.sh
+bash rasqual/scg4/rasqual.wrapper.sh # on scg4
 
 #------- FastQTL ---------------
 # Setup: 
