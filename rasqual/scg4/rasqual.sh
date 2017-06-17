@@ -42,7 +42,7 @@ if [[ ! -d $out_dir ]]; then mkdir -p $out_dir; fi
 
 if [[ $X == 'null' ]]; then 
 	echo INFO - running without covariates.
-	if [[ -e $out_dir/${gene_id}_${gene_name}.txt ]]; then 
+	if [[ -s $out_dir/${gene_id}_${gene_name}.txt ]]; then 
 		echo "$out_dir/${gene_id}_${gene_name}.txt exist! skipping..."
 	else
 		if [[ $mode == 'joint' ]]; then 
@@ -87,7 +87,7 @@ if [[ $X == 'null' ]]; then
 
 else
 	echo INFO - running with covariates $X.
-	if [[ -e $out_dir/${gene_id}_${gene_name}.txt ]]; then 
+	if [[ -s $out_dir/${gene_id}_${gene_name}.txt ]]; then 
 		echo "$out_dir/${gene_id}_${gene_name}.txt exist! skipping..."
 	else
 		if [[ $mode == 'joint' ]]; then 
