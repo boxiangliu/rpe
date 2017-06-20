@@ -88,6 +88,12 @@ bash rasqual/test/test_rasqual_chr22.sh
 bash rasqual/rasqual.wrapper.sh
 bash rasqual/scg4/rasqual.wrapper.sh # on scg4
 
+
+# Estimate the number of eQTLs with TreeQTL:
+Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/glucose/joint/ ../processed_data/rasqual/output/glucose/treeQTL/ > treeQTL.glucose.log 
+Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/galactose/joint/ ../processed_data/rasqual/output/galactose/treeQTL/ > treeQTL.galactose.log
+
+
 #------- FastQTL ---------------
 # Setup: 
 mkdir -p fastqtl ../processed_data/fastqtl/{expression,eqtl} ../figures/fastqtl
@@ -123,4 +129,10 @@ bash compare_models/define_gtex_eqtl.sh
 Rscript compare_models/compare_with_gtex.R
 
 
+#------------- MDS --------------
+# Setup: 
+mkdir -p mds
 
+# Make MDS plots: 
+nohup Rscript mds/preprocess.R > preprocess.log & 
+Rscript mds/mds.R

@@ -20,7 +20,7 @@ setorder(cis,`p-value`)
 fwrite(cis,'mEQTL_out_cis.txt',sep='\t')
 
 
-# Distance used to define nearby region
+# Distance used to define nearby region:
 dist=1e6
 
 
