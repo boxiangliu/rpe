@@ -90,9 +90,11 @@ bash rasqual/scg4/rasqual.wrapper.sh # on scg4
 
 
 # Estimate the number of eQTLs with TreeQTL:
-Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/glucose/joint/ ../processed_data/rasqual/output/glucose/treeQTL/ > treeQTL.glucose.log 
-Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/galactose/joint/ ../processed_data/rasqual/output/galactose/treeQTL/ > treeQTL.galactose.log
+Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/glucose/joint/ ../processed_data/rasqual/output/glucose/treeQTL/ 0.05 0.05 > treeQTL.glucose.log 
+Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/galactose/joint/ ../processed_data/rasqual/output/galactose/treeQTL/ 0.05 0.05 > treeQTL.galactose.log
 
+Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/glucose/joint/ ../processed_data/rasqual/output/glucose/treeQTL/fdr0.5 0.5 0.5 > treeQTL.glucose.level1-0.5.level2-0.5.log 
+Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/galactose/joint/ ../processed_data/rasqual/output/galactose/treeQTL/fdr0.5 0.5 0.5 > treeQTL.galactose.level1-0.5.level2-0.5.log
 
 #------- FastQTL ---------------
 # Setup: 
@@ -136,3 +138,14 @@ mkdir -p mds
 # Make MDS plots: 
 nohup Rscript mds/preprocess.R > preprocess.log & 
 Rscript mds/mds.R
+
+
+#------------ response eQTL -----------
+# Response eQTL based on FDR threshold:
+Rscript response_eQTL/fdr_threshold.R 
+
+# Response eQTL based on expression difference:
+Rscript response_eQTL/residual.R
+Rscript response_eQTL/difference.R
+Rscript response_eQTL/matrixeQTL_difference.R
+

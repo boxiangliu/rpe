@@ -5,14 +5,17 @@ library(dplyr)
 library(TreeQTL)
 
 # Default:
-# rasqual_dir='../processed_data/rasqual/output/glucose/joint/'
-# out_dir='../processed_data/rasqual/output/glucose/treeQTL/'
-
+rasqual_dir='../processed_data/rasqual/output/glucose/joint/'
+out_dir='../processed_data/rasqual/output/glucose/treeQTL/'
+level1 = 0.05
+level2 = 0.05
 
 args=commandArgs(T)
 if (length(args)>0){
 	rasqual_dir=args[1]
 	out_dir=args[2]
+	level1=as.numeric(args[3])
+	level2=as.numeric(args[4])
 }
 
 if (!dir.exists(out_dir)) dir.create(out_dir,recursive=TRUE)
@@ -103,7 +106,7 @@ gene_map=get_gene_map(unique(joint$fid))
 snp_map=get_snp_map(joint$sid)
 
 meqtl=joint[,list(SNP=sid,gene=fid,beta=-1,`t-stat`=-1,`p-value`=pval,FDR=-1)]
-temp=treeQTL(meqtl,snp_map,gene_map,level1=0.05,level2=0.05,eSNP=FALSE)
+temp=treeQTL(meqtl,snp_map,gene_map,level1=level1,level2=level2,eSNP=FALSE)
 eGenes=temp[[1]]
 eAssocs=temp[[2]]
 setorder(eGenes,fam_p)
