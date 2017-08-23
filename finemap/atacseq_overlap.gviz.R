@@ -119,7 +119,7 @@ tracks=combine_data(bigwig_fn,gwas,dbsnp_fn)
 
 
 
-# TCF21:
+# RDH5:
 chr='chr12'
 eqtl_fn='../processed_data/rasqual/output/glucose/joint/chr12/ENSG00000135437.5_RDH5.txt'
 
@@ -153,5 +153,58 @@ plotTracks(list(ht), chromosome = chr, from = start, to = end,showFeatureId=FALS
 start=5.6294e7
 end=5.6352e7
 ht = HighlightTrack(trackList=tracks, start = c(56294785,56329537,56335150,56351346)-25, width = 50, chromosome= chr)
+plotTracks(list(ht), chromosome = chr, from = start, to = end,showFeatureId=FALSE,showId=TRUE)
+dev.off()
+
+
+# CARD10:
+chr='chr22'
+eqtl_fn='../processed_data/rasqual/output/glucose/joint/chr22/ENSG00000100065.10_CARD10.txt'
+
+
+eqtl=fread(eqtl_fn,select=c(1:4,7,11,25),col.names=c('fid','sid','chr','pos','maf','chisq','r2_rsnp'))
+eqtl[,pval:=pchisq(chisq,df=1,lower.tail=FALSE)]
+eqtl[,logp:=-log10(pval)]
+
+eqtl_track = DataTrack(data = eqtl$logp, start = eqtl$pos, 
+	end = eqtl$pos, chromosome = chr, genome = 'hg19', name = 'RAS', type='p',frame=TRUE,col.frame='black')
+
+tracks[['RASQUAL']]=eqtl_track
+tracks=tracks[c(1,2,6,3:5)]
+
+pdf(sprintf('%s/card10.pdf',fig_dir,chr,start,end),height=10,width=8)
+start=3.80e7
+end=3.87e7
+plotTracks(tracks[-5], chromosome = chr, from = start, to = end)
+
+
+start=3.84e7
+end=3.855e7
+plotTracks(tracks[-5], chromosome = chr, from = start, to = end)
+
+# rs742398
+start=3.84733e7
+end=3.84735e7
+ht = HighlightTrack(trackList=tracks, start = 38473398-1, width = 2, chromosome= chr)
+plotTracks(list(ht), chromosome = chr, from = start, to = end,showFeatureId=FALSE,showId=TRUE)
+
+# rs8135665
+start=3.8476e7
+end=3.8477e7
+ht = HighlightTrack(trackList=tracks, start = 38476276-1, width = 2, chromosome= chr)
+plotTracks(list(ht), chromosome = chr, from = start, to = end,showFeatureId=FALSE,showId=TRUE)
+
+
+# rs6147619
+start=3.8457e7
+end=3.8458e7
+ht = HighlightTrack(trackList=tracks, start = 38457350-1, width = 2, chromosome= chr)
+plotTracks(list(ht), chromosome = chr, from = start, to = end,showFeatureId=FALSE,showId=TRUE)
+
+
+# rs11089861:
+start=3.8502e7
+end=3.8504e7
+ht = HighlightTrack(trackList=tracks, start = 38502825-1, width = 2, chromosome= chr)
 plotTracks(list(ht), chromosome = chr, from = start, to = end,showFeatureId=FALSE,showId=TRUE)
 dev.off()
