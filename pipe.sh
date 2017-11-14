@@ -109,6 +109,7 @@ Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/galactose/joint/ ../p
 
 Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/glucose/joint/ ../processed_data/rasqual/output/glucose/treeQTL/fdr20.0 20.0 20.0 > treeQTL.glucose.level1-20.0.level2-20.0.log 
 Rscript rasqual/treeQTL.R ../processed_data/rasqual/output/galactose/joint/ ../processed_data/rasqual/output/galactose/treeQTL/fdr20.0 20.0 20.0 > treeQTL.galactose.level1-20.0.level2-20.0.log
+
 #------- FastQTL ---------------
 # Setup: 
 mkdir -p fastqtl ../processed_data/fastqtl/{expression,eqtl} ../figures/fastqtl

@@ -40,7 +40,7 @@ ind_mat[,c('gtex','glu','gal'):=list(
 	gene_id%in%gal_egene$family)]
 
 
-grid.newpage()
+
 pdf(sprintf('%s/specific_eGene.pdf',fig_dir))
 draw.triple.venn(area1=sum(ind_mat[,glu]),
 	area2=sum(ind_mat[,gal]),
@@ -51,10 +51,12 @@ draw.triple.venn(area1=sum(ind_mat[,glu]),
 	n123=sum(ind_mat[,glu&gal&gtex]),
 	category = c('Glucose','Galactose','GTEx'),
 	lty=rep('blank',3),
-	fill=c('light blue','pink','orchid'),
+	fill=c('#DDE2F4','#D1E0D4','orchid'),
 	cex=rep(1.5, 7),
-	alpha = rep(0.8, 3),
-	cat.cex = rep(1.5, 3))
+	alpha=rep(0.8, 3),
+	fontfamily=rep("sans",7),
+	cat.fontfamily = rep("sans", 3),
+	cat.cex=rep(1.5, 3))
 dev.off()
 
 glu_spec_egene=ind_mat[glu&!gal&!gtex,list(gene_id,gene_name)]
