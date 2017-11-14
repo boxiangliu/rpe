@@ -1,0 +1,732 @@
+commit bf8148b075241b399b9147c11dda2962d7e568ca
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Thu Nov 9 15:47:48 2017 -0800
+
+    Going to try to fix direction of effect stuff
+
+commit 93480bba282e06cd7045f8a1cafa8c7aa852cdac
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Mon Oct 30 10:31:16 2017 -0700
+
+    Works for UKBB now, but is slow because it wastes a lot of
+    time preprocessing sites that ultimately have insufficient data to test.
+
+commit 8760e806fe10cbf33311fcdf312bc6623706626b
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Sun Oct 29 19:01:39 2017 -0700
+
+    Fixed some issues with rare variants. Will need a speedup sometime soon
+
+commit 4b8716269f9c564881979e4923a05fade9763446
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Fri Oct 27 16:09:16 2017 -0700
+
+    No more NaNs?!?!?!
+
+commit dc982af07aa92bcf8f38b6ed980abae19ed0a83c
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Fri Oct 27 10:16:04 2017 -0700
+
+    About to fix nanning issues
+
+commit 82200fae43c40a97cbe7234d9434006672dab7e8
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Thu Sep 28 16:05:15 2017 -0700
+
+    UK Biobank meta-analysis up and running.
+
+commit 84e1638eac40475c536a5e59156fadc2a0c5ea44
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Thu Sep 28 15:37:33 2017 -0700
+
+    It seems to be working now.
+
+commit ce97ae2e1c99cc7b1edc971f4388ceff4bb07ad6
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Thu Sep 28 11:49:25 2017 -0700
+
+    Tried making some changes to allow rapid analysis of UK Biobank
+    GWAS. Will now test to see if they work
+
+commit 6ec32037f6a579f7a43c8fbf705f2a8fa759df4d
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Sep 27 12:12:39 2017 -0700
+
+    minor change
+
+commit a870c566413a94c803671d92f59879bb70679ba4
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Sep 27 11:50:51 2017 -0700
+
+    LD is now estimated from the desired reference population VCF.
+    Fixed bugs from last commit.
+
+commit f137ac6e47a21e5ff97cd6623e4731cb35d3dcfa
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Tue Sep 26 11:37:52 2017 -0700
+
+    Modified LD estimation. Full of bugs at the moment
+
+commit 3dfe19980daafcc819a4da6b6c86fcef7019e2a5
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Mon Sep 25 14:01:40 2017 -0700
+
+    Added code to check for nans in plink output
+
+commit 20e08512eca90697913100955b09b908274a8d80
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Mon Sep 25 13:24:57 2017 -0700
+
+    Converted phased DGN to VCF
+
+commit d84a93fda8155e0e5fe12d4f644e8f330b88f31b
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Fri Sep 22 19:12:16 2017 -0700
+
+    Phased haplotypes to VCF
+
+commit bcb685cfe811d63b50803e827842409120489acd
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Fri Sep 22 15:57:27 2017 -0700
+
+    Running Beagle to implement DGN samples. Currently very slow
+
+commit e5f28e1b7c52116ef39ce5f90bc4165fc8d17efb
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Thu Sep 21 15:15:52 2017 -0700
+
+    About to merge with master
+
+commit 9fef499f38845d6ed0a9ef7c6c87744e33b07da2
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Sep 20 18:31:10 2017 -0700
+
+    Removed unnecessary print statements
+
+commit 68bba6129f005eb3161d3ad5f3aa6be84c32b5cb
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Sep 20 18:29:27 2017 -0700
+
+    Fixed multiallelic bug that was crashing FINEMAP
+
+commit b18e21897608ae7fad491acdc3ef4408a26410b9
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Sat Sep 9 09:46:33 2017 -0700
+
+    Working on getting this working again
+    Need to get allele frequencies for coloc
+
+commit fe1e83fdb6495618502bf7f96392595585b013ad
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Fri Aug 11 14:07:57 2017 -0700
+
+    Small changes only
+
+commit 93eb647a13619091165285c67ab0db6973f443f7
+Merge: 3fe8655 bf4a1f1
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Aug 9 16:05:19 2017 -0700
+
+    Merge branch 'add_coloc'
+
+commit bf4a1f14df113d51f3e39e8df6cffe2dbd51eee7
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Aug 9 15:55:21 2017 -0700
+
+    Implemented COLOC, which is working now aside from getting MAFs
+
+commit 3fe8655a615a916564ff5c48e6c1f7181d54d31b
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Aug 9 10:53:17 2017 -0700
+
+    Working on fixing some issues with preprocessing when GWAS table
+    has no pvalues (maybe it's empty)
+
+commit ea308ae0f59b5ddfc9309532961f3e26333ee21a
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Tue Aug 8 17:11:14 2017 -0700
+
+    Added coloc functionality, not yet completed.
+
+commit b9ecb4132be54880fb24688e54337b34b43fd39c
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Tue Aug 8 15:17:36 2017 -0700
+
+    Fixed small bug with FINEMAP output
+
+commit 661c367ae6bf731ec75c77c814c66830747983a4
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Tue Aug 8 15:08:19 2017 -0700
+
+    Removed old file backups
+
+commit 0451d4889ab3aa12ca54535b13b8b4b3e90b3a74
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Tue Aug 8 15:05:28 2017 -0700
+
+    Running RPE. From now on, I'll keep this master branch working fine,
+    and then develop other changes using branch.
+
+commit a21f70cb934eb55534dec00cd7ce80d16d2d504c
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Tue Aug 8 11:11:52 2017 -0700
+
+    FINEMAP running smoothly for RPE data. Going to test eCAVIAR next.
+
+commit 0e6b32b7545fbd8e2d074747fef6f8b4cc293ead
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Fri Aug 4 15:52:55 2017 -0700
+
+    Re-organized and hopefully ready for the bigtime
+
+commit 4a0a3f5d58286d22fa66314136afb45ea2b263fd
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Thu Aug 3 17:30:04 2017 -0700
+
+    Produced the skeleton of new coloc pipeline.
+
+commit 94ad067c86804576fb91a8e6722bce6959fa222b
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Thu Aug 3 15:14:19 2017 -0700
+
+    Pre-makeover
+
+commit afbe98583d9992ac04d0a46419744ab55d0eebee
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Fri Jul 28 15:45:40 2017 -0700
+
+    Trimmed down to the essence of the code. May not work yet.
+    Preparing to rebuild from the bottom up.
+
+commit 082ca218a6115e06435eb4bfa3b5613a2b343807
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Fri Jul 28 13:57:09 2017 -0700
+
+    Copied a version of the main script called "verbose" so I can
+    trim it down without completely eliminating all the old CAVIAR code,
+    since we might want it back eventually.
+
+commit 3b2eb338ef31abda07ab073ad0396cf4f4c2ad79
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Fri Jul 28 13:47:32 2017 -0700
+
+    7/28 about to overhaul this project after a while away
+
+commit 5f56b3be8fae28df30f6ea519f9293d2eeedd5a9
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Apr 5 12:08:16 2017 -0700
+
+    Modified find_colocalization
+
+commit e77399b4c2f609e9404c6057f2dbb88c63d9c32e
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Apr 5 11:55:30 2017 -0700
+
+    Modified code to analyze eCAVIAR/FINEMAP output
+
+commit e01b126c44d73da8162450ecaaf8dc1ad1a8e025
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Apr 5 11:08:29 2017 -0700
+
+    Updated thresholding analysis for new pipeline
+
+commit 13a2cf8db2a3f361b5e602076e0aab88fee11209
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Tue Apr 4 15:28:56 2017 -0700
+
+    Minor changes, deleted README that is for distributable version
+
+commit 7dba217f9229b5294fe86878cf52bcd922940642
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Mon Apr 3 22:52:55 2017 -0700
+
+    Integrated FINEMAP; results not yet thoroughly examined
+
+commit c41b0b21649765d67b14542720682c2763b86bc2
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Thu Mar 30 19:00:43 2017 -0700
+
+    Update README.md
+
+commit ead7bf7d0af616a878e015b25f6c8ed2dbb1e4aa
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Thu Mar 30 18:58:42 2017 -0700
+
+    Update README.md
+
+commit 6b84f60b892c6d19884e8ef0a696950e2f371e7f
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Thu Mar 30 18:43:13 2017 -0700
+
+    Update README.md
+
+commit 784213d3aeb71a10ab4d5487c633eec5396de433
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Thu Mar 30 17:01:53 2017 -0700
+
+    Update README.md
+
+commit 83514ed57e8373e37505f66075659f7f1a46dab0
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Thu Mar 30 16:53:33 2017 -0700
+
+    Update README.md
+
+commit e86a17fb0d83a348b77a92b4a79433d520d05b88
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Thu Mar 30 16:51:53 2017 -0700
+
+    Update README.md
+
+commit a769a436da331b36296a4b3e6233e2eefeb3aba8
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Thu Mar 30 16:37:39 2017 -0700
+
+    Update README.md
+
+commit d0640b4fee661c582837907f3b082bb98510a1d6
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Thu Mar 30 13:16:20 2017 -0700
+
+    Update README.md
+
+commit 6a9376a8a901d2127232765c1d15afaecf6d1b4e
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Wed Mar 29 18:30:37 2017 -0700
+
+    Update README.md
+
+commit 19567512fe48c11d5bc06efe4fdeeeb75b4df5d4
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Wed Mar 29 18:20:17 2017 -0700
+
+    Update README.md
+
+commit eea223dbb0853dd5a0ade9adf313412ad2cd0b55
+Author: abhiramrao <rao.abhiram@gmail.com>
+Date:   Wed Mar 29 18:19:07 2017 -0700
+
+    First README draft
+    
+    Still incomplete
+
+commit cdc4793ddc30da1c6889627078feea04105bd29b
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Wed Mar 29 15:39:57 2017 -0700
+
+    Integrated tabix
+
+commit a70ae45d2a5e6216fc29b90d30db50f9a8a320d4
+Author: mikegloudemans <mgloud@durga.stanford.edu>
+Date:   Fri Mar 24 13:37:50 2017 -0700
+
+    Initial commit. Needs some revision for readability.
+diff --git a/scripts/data_prep/hcasmc_data_prep.sh b/scripts/data_prep/hcasmc_data_prep.sh
+index 4d1b3cd..31e9f94 100755
+--- a/scripts/data_prep/hcasmc_data_prep.sh
++++ b/scripts/data_prep/hcasmc_data_prep.sh
+@@ -3,40 +3,56 @@
+ # TODO: Reset relative paths to appropriate absolute paths, now that I've moved this to the scripts folder.
+ 
+ # Format and index CAD data
++hcasmc_gwas_dir=/users/mgloud/projects/brain_gwas/data/gwas/hcasmc
+ 
+-header="Markername\tsnptestid\tchr\tsnp_pos\ta1\ta2\teffect_allele_freq\tlogOR\tse_gc\tpvalue\tn_samples\texome\tinfo_ukbb"
++# Note that order of alt and ref is swapped in this example
++header="Markername\tsnptestid\tchr\tsnp_pos\talt\tref\talt_freq\tlog_or\tse\tpvalue\tn_samples\texome\tinfo_ukbb"
+ 
+ # Copy file from Bosh, sort it, and relabel columns to make it compatible with coloc pipeline
+ cat <(echo -e $header) \
+-	<(zcat /srv/persistent/bliu2/HCASMC_eQTL/data/gwas/ukbb/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt.gz | awk '{if (($3 != "NA") && ($4 != "NA")) print $0}' | tail -n +2 | sort -k3,3 -k4,4n) > UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt
++	<(zcat /srv/persistent/bliu2/HCASMC_eQTL/data/gwas/ukbb/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt.gz | awk '{if (($3 != "NA") && ($4 != "NA")) print $0}' | tail -n +2 | awk 'BEGIN {OFS="\t"}; {$4 = sprintf("%d", $4); print}' | sort -k3,3 -k4,4n) > $hcasmc_gwas_dir/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt
+ 
+-bgzip -f UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt
+-tabix -s 3 -b 4 -e 4 -S 1  UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt.gz
++bgzip -f $hcasmc_gwas_dir/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt
++tabix -s 3 -b 4 -e 4 -S 1  $hcasmc_gwas_dir/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt.gz
+ 
+ ################################################################################################
+ 
+ # Format and index CARDIoGRAM data
+ 
+ # Het p-value = heterogeneity p-value, not what we're interested in
+-header="markername\tchr\tsnp_pos\ta1\ta2\teffect_allele_freq\tmedian_info\tmodel\tbetax\tse_dgc\tpvalue\thet_pvalue\tn_studies"
++# Again, alt and ref order is swapped in this file.
++header="markername\tchr\tsnp_pos\talt\tref\talt_freq\tmedian_info\tmodel\tbeta\tse\tpvalue\thet_pvalue\tn_studies"
+ 
+ cat <(echo -e $header) \
+-	        <(cat /srv/persistent/bliu2/HCASMC_eQTL/data/gwas/CARDIoGRAMplusC4D/cad.add.160614.website.txt | awk '{if (($3 != "NA") && ($4 != "NA")) print $0}' | tail -n +2 | sort -k2,2 -k3,3n) > CARDIoGRAM_cad.add.160614.website.txt
++	<(cat /srv/persistent/bliu2/HCASMC_eQTL/data/gwas/CARDIoGRAMplusC4D/cad.add.160614.website.txt | awk '{if (($3 != "NA") && ($4 != "NA")) print $0}' | tail -n +2 | awk 'BEGIN {OFS="\t"}; {$3 = sprintf("%d", $3); print}' | sort -k2,2 -k3,3n) > $hcasmc_gwas_dir/CARDIoGRAM_cad.add.160614.website.txt
+ 
+-bgzip -f CARDIoGRAM_cad.add.160614.website.txt
+-tabix -s 2 -b 3 -e 3 -S 1 CARDIoGRAM_cad.add.160614.website.txt.gz
++bgzip -f $hcasmc_gwas_dir/CARDIoGRAM_cad.add.160614.website.txt
++tabix -s 2 -b 3 -e 3 -S 1 $hcasmc_gwas_dir/CARDIoGRAM_cad.add.160614.website.txt.gz
+ 
+ ################################################################################################
+ 
+ # Compile all eQTL data into a single file, sort it, compress it, and index it
+-
++#rm -f /users/mgloud/projects/brain_gwas/data/eqtls/hcasmc/hcasmc_eqtls_presorting.txt
+ #for f in `find /srv/persistent/bliu2/HCASMC_eQTL/processed_data/rasqual/output_pval/ -name *pval.txt`;
+ #do
+ #	tail -n +2 $f >> /users/mgloud/projects/brain_gwas/data/eqtls/hcasmc/hcasmc_eqtls_presorting.txt
+ #done
+ 
+ find /srv/persistent/bliu2/HCASMC_eQTL/processed_data/rasqual/output_pval/ -name *pval.txt | head -n 1 | xargs cat | head -n 1 | sed s/pos/snp_pos/g | sed s/fid/gene/g  > /users/mgloud/projects/brain_gwas/data/eqtls/hcasmc/hcasmc_eqtls.txt
+-sort -k3,3 -k4,4n /users/mgloud/projects/brain_gwas/data/eqtls/hcasmc/hcasmc_eqtls_presorting.txt | sed s/chr//g >> /users/mgloud/projects/brain_gwas/data/eqtls/hcasmc/hcasmc_eqtls.txt 
++# Remove SNPs where ref and alt allele are the same. I don't know how this is even happening, but we don't want to mess with these.
++sort -k3,3 -k4,4g /users/mgloud/projects/brain_gwas/data/eqtls/hcasmc/hcasmc_eqtls_presorting.txt | sed s/chr//g | awk '{if ($5 != $6) print $0}' >> /users/mgloud/projects/brain_gwas/data/eqtls/hcasmc/hcasmc_eqtls.txt 
+ bgzip -f /users/mgloud/projects/brain_gwas/data/eqtls/hcasmc/hcasmc_eqtls.txt
+ tabix -s 3 -b 4 -e 4 -S 1 /users/mgloud/projects/brain_gwas/data/eqtls/hcasmc/hcasmc_eqtls.txt.gz
+ 
++################################################################################################
++
++# Prep splicing QTLs
++
++sqtl_dir=/users/mgloud/projects/brain_gwas/data/eqtls/hcasmc/sqtls
++header="rsid\tchr\tsnp_pos\tfeature\tcluster\tfeature_distance\tpvalue\tbeta\tse"
++echo -e $header > $sqtl_dir/hcasmc_sqtls.txt
++join -1 3 -2 3 \
++	<(zcat /srv/persistent/bliu2/HCASMC_eQTL/data/joint3/asvcf/phased_and_imputed.chr1.rename.dr2.hwe.indellt51.rnasample.hg19.vcf.new.gz | tail -n +23 | cut -f1,2,3 | sort -k3,3) \
++	<(zcat /srv/persistent/bliu2/HCASMC_eQTL/processed_data/sqtl/fastQTL/nominal/all.nominal.txt.gz | sed s/:/\\t/g | lesss | awk '{print $1 "_" $2 "_" $3 "\t" $4 "\t" $5 "\t" $6 "\t" $7 "\t" $8 "\t" $9}' | sort -k3,3) | sed s/chr//g | grep -v nan | sort -k2,2 -k3,3n | sed s/\ /\\t/g >> $sqtl_dir/hcasmc_sqtls.txt
++bgzip -f $sqtl_dir/hcasmc_sqtls.txt
++tabix -S 1 -s 2 -b 3 -e 3 $sqtl_dir/hcasmc_sqtls.txt.gz
+diff --git a/scripts/data_prep/rpe_prep.sh b/scripts/data_prep/rpe_prep.sh
+index d8184c9..60882d4 100644
+--- a/scripts/data_prep/rpe_prep.sh
++++ b/scripts/data_prep/rpe_prep.sh
+@@ -4,9 +4,21 @@
+ #
+ # Commands to wrangle the RPE data into a usable format for coloc running
+ 
+-#cp -r /srv/persistent/bliu2/rpe/processed_data/rasqual/output/ /users/mgloud/projects/brain_gwas/data/eqtls/
++# GWAS data
+ 
+-header="gene\trsid\tchr\tsnp_pos\tref\talt\tallele_freq\thwe_chisq\tIA\tqval\tchisq\teffect_size\tmapping_error_rate\tref_bias\toverdispersion\tsnp_regional_id\tfeature_snp_count\ttested_snp_count\tnull_iterations\talt_iterations\trandom_tie_location\tlogl_null\tconvergence\tr2_fSNP\tr2_rSNP"
++header="Marker\tchr\tsnp_pos\tref\talt\tNcases\tNcontrols\tpvalue\tdirection"
++
++# Note that we need to swap columns 4 and 5 because the effect allele is listed first in the original data.
++echo -e $header > /users/mgloud/projects/brain_gwas/data/gwas/rpe/Fritsche_sorted.txt
++tail -n +2 /srv/persistent/bliu2/rpe/data/gwas/Fritsche_2015_AdvancedAMD.txt | sort -k2,2 -k3,3n |  \
++	awk '{print $1 "\t" $2 "\t" $3 "\t" $5 "\t" $4 "\t" $6 "\t" $7 "\t" $8 "\t" $9}' >> /users/mgloud/projects/brain_gwas/data/gwas/rpe/Fritsche_sorted.txt
++bgzip -f /users/mgloud/projects/brain_gwas/data/gwas/rpe/Fritsche_sorted.txt
++tabix -S 1 -s 2 -b 3 -e 3 /users/mgloud/projects/brain_gwas/data/gwas/rpe/Fritsche_sorted.txt.gz
++
++
++# eQTL data
++
++header="gene\trsid\tchr\tsnp_pos\tref\talt\tallele_freq\thwe_chisq\tIA\tqval\tchisq\tpi\tmapping_error_rate\tref_bias\toverdispersion\tsnp_regional_id\tfeature_snp_count\ttested_snp_count\tnull_iterations\talt_iterations\trandom_tie_location\tlogl_null\tconvergence\tr2_fSNP\tr2_rSNP"
+ 
+ cat <(echo -e $header) <(cat /users/mgloud/projects/brain_gwas/data/eqtls/output/glucose/joint/*/* | sed 's/chr//g') | sort -k3,3n -k4,4n | bgzip > /users/mgloud/projects/brain_gwas/data/eqtls/output/glucose.eqtls.txt.gz
+ tabix -p bed -S 1 -s 3 -b 4 /users/mgloud/projects/brain_gwas/data/eqtls/output/glucose.eqtls.txt.gz
+diff --git a/scripts/dispatch.py b/scripts/dispatch.py
+index 5d77d3e..ccadd7b 100644
+--- a/scripts/dispatch.py
++++ b/scripts/dispatch.py
+@@ -12,13 +12,13 @@ import sys
+ from shutil import copyfile
+ import datetime
+ import subprocess
++import math
+ 
+ # Custom libraries
+ import config
+ import preprocess
+ import tabix_snps
+ from TestLocus import TestLocus
+-import math
+ 
+ # TODO: Parallelize this again. As it is right now, it's fairly slow because so many sites/tissues to test.
+ 
+@@ -70,8 +70,8 @@ def main():
+             for snp in snp_list:
+ 
+                 # Load relevant GWAS and eQTL data.
+-                gwas_data = preprocess.get_gwas_data(gwas_file, snp) # Get GWAS data
+-                eqtl_data = preprocess.get_eqtl_data(eqtl_file, snp) # Get eQTL data
++                gwas_data = preprocess.get_gwas_data(gwas_file, snp, settings) # Get GWAS data
++                eqtl_data = preprocess.get_eqtl_data(eqtl_file, snp, settings) # Get eQTL data
+ 
+                 # Get all genes whose eQTLs we're testing at this locus
+                 genes = set(eqtl_data['gene'])
+diff --git a/scripts/finemap.py b/scripts/finemap.py
+index 9effd00..3584247 100644
+--- a/scripts/finemap.py
++++ b/scripts/finemap.py
+@@ -49,7 +49,7 @@ def prep_finemap(locus, window):
+     # are using same reference genome.
+     if eqtl_vcf == gwas_vcf:
+         # Get and filter the single VCF.
+-        vcf, combined = load_and_filter_variants(eqtl_vcf, locus, combined, eqtl_ref, window)
++        vcf, combined = load_and_filter_variants(eqtl_vcf, locus, combined, eqtl_ref, window, ["eqtl", "gwas"])
+         assert vcf.shape[0] == combined.shape[0]
+ 
+         # Run PLINK on just one VCF.
+@@ -64,8 +64,8 @@ def prep_finemap(locus, window):
+ 
+     else:
+         # Get and filter both VCFs.
+-        evcf, combined = load_and_filter_variants(eqtl_vcf, locus, combined, eqtl_ref, window)
+-        gvcf, combined = load_and_filter_variants(gwas_vcf, locus, combined, gwas_ref, window)
++        evcf, combined = load_and_filter_variants(eqtl_vcf, locus, combined, eqtl_ref, window, ["eqtl"])
++        gvcf, combined = load_and_filter_variants(gwas_vcf, locus, combined, gwas_ref, window, ["gwas"])
+ 
+         # Subset to overlapping SNPs
+         evcf, gvcf, combined = intersect_reference_vcfs(evcf, gvcf, combined)
+@@ -177,7 +177,7 @@ def purge_tmp_files(locus):
+ 
+     pass
+ 
+-def load_and_filter_variants(filename, locus, combined, ref, window):
++def load_and_filter_variants(filename, locus, combined, ref, window, ref_types):
+     
+     # TODO: Spot check all of these tests to ensure they're working as desired.
+ 
+@@ -224,12 +224,27 @@ def load_and_filter_variants(filename, locus, combined, ref, window):
+             return af > 0.01 and 1-af > 0.01 
+         vcf = vcf[vcf["INFO"].apply(fn)]
+ 
+-    # Remove variants where alt/ref don't match between GWAS and VCF
++    # Remove variants where alt/ref don't match between GWAS/eQTL and VCF
+     # Flipped is okay. A/C and C/A are fine, A/C and A/G not fine.
+     # TODO: Verify on an example case that this filtering is working correctly.
+     merged = pd.merge(combined, vcf, left_on="snp_pos", right_on="POS")
+-    keep_indices = ((merged['a1'] == merged['REF']) & (merged['a2'] == merged['ALT'])) | \
+-            ((merged['a2'] == merged['REF']) & (merged['a1'] == merged['ALT']))
++    # TODO: Enforce new standard: effect measurements are always with respect to ALT status.
++    keep_indices = \
++            (((merged['ref_gwas'] == merged['REF']) & (merged['alt_gwas'] == merged['ALT'])) | \
++            ((merged['alt_gwas'] == merged['REF']) & (merged['ref_gwas'] == merged['ALT']))) & \
++            (((merged['ref_eqtl'] == merged['REF']) & (merged['alt_eqtl'] == merged['ALT'])) | \
++            ((merged['alt_eqtl'] == merged['REF']) & (merged['ref_eqtl'] == merged['ALT'])))
++
++    # Now, reverse the z-score for any SNPs whose ref/alt direction doesn't match the direction
++    # in the reference genome.
++    assert "gwas" in ref_types or "eqtl" in ref_types
++    if "gwas" in ref_types:
++        merged['reverse_gwas'] = (merged['alt_gwas'] == merged['REF']) & (merged['ref_gwas'] == merged['ALT'])
++        merged['ZSCORE_gwas'] = merged['ZSCORE_gwas'] * (1 - (merged['reverse_gwas'] * 2))
++    if "eqtl" in ref_types:
++        merged['reverse_eqtl'] = (merged['alt_eqtl'] == merged['REF']) & (merged['ref_eqtl'] == merged['ALT'])
++        merged['ZSCORE_eqtl'] = merged['ZSCORE_eqtl'] * (1 - (merged['reverse_eqtl'] * 2))
++
+     keep = merged['POS'][keep_indices]
+     vcf = vcf[vcf['POS'].isin(list(keep))]
+     
+diff --git a/scripts/plot_loci.py b/scripts/plot_loci.py
+index 96c6258..ba0ecc7 100644
+--- a/scripts/plot_loci.py
++++ b/scripts/plot_loci.py
+@@ -53,7 +53,7 @@ def pvalue_plot(locus, clpp):
+     plt.xlabel('GWAS -log p-value', fontsize=16)
+     plt.ylabel('eQTL -log p-value', fontsize=16)
+     plt.title('{0} CLPP = {1}'.format(locus.gene, clpp), fontsize=24)
+-    plt.savefig("{0}/plots/{4}/{1}_{2}/{3}/{4}.png".format(locus.basedir, locus.chrom, locus.pos, locus.eqtl_suffix, locus.gene, locus.gwas_suffix), shell=True)
++    plt.savefig("{0}/plots/{5}/{1}_{2}/{3}/{4}.png".format(locus.basedir, locus.chrom, locus.pos, locus.eqtl_suffix, locus.gene, locus.gwas_suffix), shell=True)
+     plt.gcf().clear()
+     plt.close()
+ 
+diff --git a/scripts/preprocess.py b/scripts/preprocess.py
+index e79ae01..fdff905 100644
+--- a/scripts/preprocess.py
++++ b/scripts/preprocess.py
+@@ -81,17 +81,7 @@ def select_test_snps(gwas_file, gwas_threshold, window=1000000):
+ 
+ 
+ # Load summary statistics for GWAS
+-def get_gwas_data(gwas_file, snp, window=500000):
+-
+-    # TODO: Tabix this to make it faster, or at least
+-    # load the table just once for the locus. Right now
+-    # it's really slow.
+-
+-    # Subset GWAS list to SNPs near the GWAS position
+-    '''gwas_table = pd.read_csv(gwas_file, sep="\t")
+-    gwas_table['snp_pos'] = gwas_table['snp_pos'].astype(int)
+-    gwas_table = gwas_table[(gwas_table['snp_pos'] > snp.pos - window) & (gwas_table['snp_pos'] < snp.pos + window)]
+-    gwas_table = gwas_table[(gwas_table['chr'] == snp.chrom) | (gwas_table['chr'] == 'chr{0}'.format(snp.chrom))]'''
++def get_gwas_data(gwas_file, snp, settings, window=500000):
+ 
+     # Get GWAS data using tabix
+     header = subprocess.check_output("zcat {0} 2> /dev/null | head -n 1".format(gwas_file), shell=True)
+@@ -100,27 +90,30 @@ def get_gwas_data(gwas_file, snp, window=500000):
+     gwas_table = pd.read_csv(StringIO(header + raw_gwas), sep="\t")
+     gwas_table['snp_pos'] = gwas_table['snp_pos'].astype(int)
+ 
++    if "ref_allele_header" in settings['gwas_experiments'][gwas_file]:
++        gwas_table['ref'] = gwas_table[settings['gwas_experiments'][gwas_file]['ref_allele_header']]
++    if "alt_allele_header" in settings['gwas_experiments'][gwas_file]:
++        gwas_table['alt'] = gwas_table[settings['gwas_experiments'][gwas_file]['alt_allele_header']]
++
+     # Figure out whether GWAS scores are in odds ratio or beta-se format
+-    # NOTE: This section is likely to be error prone at the moment...be careful!
+-    # TODO: Eliminate options here and require a standard preprocessing format
+-    # to make things work more smoothly
+-    if 'or' in gwas_table:
+-        # TODO: Also verify the correctness of this math. Is it right?
+-        gwas_table['ZSCORE'] = (gwas_table['or']-1) / gwas_table['se']
++    # TODO: Specify standard for format to make this part run more smoothly.
++    # TODO: Have an input config parameter be something like "gwas_format": "case-control" or something like that, to make sure the user knows
++    #       what they're doing.
++    if 'log_or' in gwas_table and 'se' in gwas_table:
++        gwas_table['ZSCORE'] = gwas_table['log_or'] / gwas_table['se']
+     elif 'beta' in gwas_table:
+-        gwas_table['ZSCORE'] = (gwas_table['beta']) / gwas_table['se']
++        gwas_table['ZSCORE'] = gwas_table['beta'] / gwas_table['se']
+     elif 'pvalue' in gwas_table and "direction" in gwas_table:
+         # This is the format for RPE.
+-        # Need to cap it at z-score of 40 for outrageous p-values (like with AMD / RPE stuff)        
++        # Need to cap it at z-score of 40 for outrageous p-values (like with AMD / RPE stuff)
+         gwas_table['ZSCORE'] = pd.Series([min(x, 40) for x in stats.norm.isf(gwas_table["pvalue"] / 2)]) * (2*(gwas_table["direction"] == "+")-1)
+-
+     else:
+         return None
+ 
+     return gwas_table
+ 
+ # Load summary statistics for eQTL
+-def get_eqtl_data(eqtl_file, snp, window=500000):
++def get_eqtl_data(eqtl_file, snp, settings, window=500000):
+ 
+     # Get eQTL data using tabix
+     header = subprocess.check_output("zcat {0} 2> /dev/null | head -n 1".format(eqtl_file), shell=True)
+@@ -128,26 +121,26 @@ def get_eqtl_data(eqtl_file, snp, window=500000):
+             snp.chrom, snp.pos - window, snp.pos + window), shell=True)
+     eqtls = pd.read_csv(StringIO(header + raw_eqtls), sep="\t")
+ 
+-    print eqtls.head()
++    if "ref_allele_header" in settings['eqtl_experiments'][eqtl_file]:
++        eqtl_table['ref'] = eqtl_table[settings['eqtl_experiments'][eqtl_file]['ref_allele_header']]
++    if "alt_allele_header" in settings['eqtl_experiments'][eqtl_file]:
++        eqtl_table['alt'] = eqtl_table[settings['eqtl_experiments'][eqtl_file]['alt_allele_header']]
+ 
+     eqtls['snp_pos'] = eqtls['snp_pos'].astype(int)
+ 
++    # TODO: Specify standard formats to reduce confusion here. 
++    # TODO: Have inputs be either in rasqual format or in some other format, and specify this in the config, instead of arbitarily chekcing for chisq column
+     if 't-stat' in eqtls:
+         eqtls['ZSCORE'] = eqtls['t-stat']
+     elif "chisq" in eqtls:
+-        # TODO: Fix this to make it more explicitly clear that we're dealing with RASQUAL data
+-        # where effect size is given by allelic imbalance percentage pi
++        # Here we're dealing with RASQUAL data
++        # where effect size is given by allelic imbalance percentage pi.
+         # Use max function to protect against underflow in chi2 computation
+-        # TODO: Fixing z-score issues here is VERY important! This could cause serious issues downstream...
+-        # Do this even before starting on ASE stuff!
+-        # TODO TODO TODO
+         eqtls['pvalue'] = [max(x, 1e-16) for x in 1-stats.chi2.cdf(eqtls["chisq"],1)]
+         eqtls['ZSCORE'] = stats.norm.isf(eqtls['pvalue']/2) * (2 * (eqtls["pi"] > 0.5) - 1)
+     else:
+         return None
+ 
+-
+-
+     return eqtls
+ 
+ # Input: GWAS pandas dataframe, eQTL pandas dataframe, gene name as a string,
+@@ -189,15 +182,16 @@ def combine_summary_statistics(gwas_data, eqtl_data, gene, snp, settings, window
+ 
+     # Get MAFs from 1000 Genomes.
+     # Filter out multi-allelic or non-polymorphic sites.
+-    # TODO: Make sure direction of MAFs is consistent between eQTL and GWAS
++    # TODO TODO TODO: Make sure direction of MAFs is consistent between eQTL and GWAS
++    # It only works right now because we're only using MAF for filtering
+     # Currently, some MAFs may be > 0.5
+     # (Could eventually be in separate function)
+     # Get the region of interest from 1K genomes VCFs using tabix
+-    output = subprocess.check_output("tabix /mnt/lab_data/montgomery/shared/1KG/ALL.chr{0}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz {0}:{1}-{2}".format(snp.chrom, snp.pos - window, snp.pos + window), shell=True).strip().split("\n")
+-    mafs = [[int(line.split('\t')[0]), int(line.split('\t')[1]), line.split('\t')[7]] for line in output if "MULTI_ALLELIC" not in line and ";AF=1;" not in line and ";AF=0;" not in line and "," not in line.split('\t')[4]]
+-    for m in mafs:
+-        m[2] = float(m[2].split(";")[1][3::])
+-    mafs = pd.DataFrame(mafs, columns=["chr_eqtl", "snp_pos", "Kgenomes_maf"])
++    #output = subprocess.check_output("tabix /mnt/lab_data/montgomery/shared/1KG/ALL.chr{0}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz {0}:{1}-{2}".format(snp.chrom, snp.pos - window, snp.pos + window), shell=True).strip().split("\n")
++    #mafs = [[int(line.split('\t')[0]), int(line.split('\t')[1]), line.split('\t')[7]] for line in output if "MULTI_ALLELIC" not in line and ";AF=1;" not in line and ";AF=0;" not in line and "," not in line.split('\t')[4]]
++    #for m in mafs:
++    #    m[2] = float(m[2].split(";")[1][3::])
++    #mafs = pd.DataFrame(mafs, columns=["chr_eqtl", "snp_pos", "Kgenomes_maf"])
+ 
+    # TODO TODO: At this step filter out variants
+     # whose same position appears twice or more. (can steal the code 
+@@ -208,14 +202,17 @@ def combine_summary_statistics(gwas_data, eqtl_data, gene, snp, settings, window
+     # TODO: Convert this to a join operation instead
+     # Join the list of eQTL SNPs with the list of GWAS SNPs
+     combined = pd.merge(gwas_data, eqtl_subset, on="snp_pos", suffixes=("_gwas", "_eqtl"))
+-    combined = pd.merge(combined, mafs, on=["snp_pos", "chr_eqtl"])
++    #combined = pd.merge(combined, mafs, on=["snp_pos", "chr_eqtl"])
+ 
+     # Filter out variants where 1K genomes MAF < 0.01. We can think more about
+     # whether this is the best strategy, but for now it's best to do this, because
+     # the overwhelming majority of variants with lower MAF end up getting filtered out
+     # at later stages in the pipeline anyway.
+-    combined = combined[(combined['Kgenomes_maf'] > 0.01) & (combined['Kgenomes_maf'] < 0.99)]
++    #combined = combined[(combined['Kgenomes_maf'] > 0.01) & (combined['Kgenomes_maf'] < 0.99)]
+  
++    # NOTE: I don't think we really need to do this anymore; however, we DO want to make sure
++    # the same exact variant/rsid doesn't appear twice in the input. That would be a malformed
++    # input, but it's happened before nevertheless.
+     # For now, remove all positions that appear multiple times in the GWAS table.
+     # This will avoid problems later in the pipeline, and doesn't remove too many SNPs anyway.
+     dup_counts = {}
+* master
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   data_prep/hcasmc_data_prep.sh
+	modified:   data_prep/rpe_prep.sh
+	modified:   dispatch.py
+	modified:   finemap.py
+	modified:   plot_loci.py
+	modified:   preprocess.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	../data
+	../output/
+	SNP.pyc
+	TestLocus.pyc
+	coloc.pyc
+	config.pyc
+	data_prep/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt.gz
+	data_prep/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt.gz.tbi
+	data_prep/chr22.vcf.gz
+	data_prep/hcasmc_data_prep_spliceonly.sh
+	data_prep/index_gtex_v7.sh
+	data_prep/nohup.out
+	data_prep/shapeit_22092017_19h13m28s_e380a0eb-304d-43c5-9a0e-0e208eb73022.log
+	data_prep/shapeit_22092017_19h15m28s_0366a43a-f285-4309-834a-99ca95817eb3.log
+	data_prep/shapeit_22092017_19h17m22s_158ea0ff-62af-4580-ae4f-3597266b145d.log
+	data_prep/shapeit_22092017_19h19m04s_ef25aa62-0e88-4556-808d-566268a88b27.log
+	data_prep/shapeit_22092017_19h20m27s_d50ba0ba-20b7-497e-84ff-5ff950e08e46.log
+	data_prep/shapeit_22092017_19h21m50s_06f5ebfb-c141-49ba-b629-12a48a33155a.log
+	data_prep/shapeit_22092017_19h23m38s_c8bb345d-7d9b-4f8a-a051-137db1f5624f.log
+	data_prep/shapeit_22092017_19h24m51s_8fb6cf1f-395a-439d-8041-c9e2af6b092a.log
+	data_prep/shapeit_22092017_19h26m05s_1a712d90-1f1c-4c6f-b8fd-239f057d15de.log
+	data_prep/shapeit_22092017_19h27m04s_84992b74-415c-4e91-8b59-b45a57e823a0.log
+	data_prep/shapeit_22092017_19h28m11s_410ffb9c-1af9-41ca-9be4-e67f94f3253c.log
+	data_prep/shapeit_22092017_19h29m30s_3f1340bd-7cd0-463b-814b-8d1807ad6a69.log
+	data_prep/shapeit_22092017_19h30m50s_87018528-27a8-471a-9a9d-4eb94952b144.log
+	data_prep/shapeit_22092017_19h31m48s_956b69dd-f745-4168-ba40-33d541a534eb.log
+	data_prep/shapeit_22092017_19h32m35s_083b405a-cbb3-4cc4-b714-06541b1c36e3.log
+	data_prep/shapeit_22092017_19h33m25s_3d467b82-2fc4-4a97-93be-cfcaa52a5e06.log
+	data_prep/shapeit_22092017_19h34m11s_c1173e5f-e4b7-46fd-a577-ad57a31e4632.log
+	data_prep/shapeit_22092017_19h34m50s_253c1742-65ac-4607-b6ed-983d9e363919.log
+	data_prep/shapeit_22092017_19h35m32s_bed46c08-716c-428c-83fa-8834f686af59.log
+	data_prep/shapeit_22092017_19h36m05s_b6b81e9b-f783-4232-895a-5eced8f224ee.log
+	data_prep/shapeit_22092017_19h36m48s_e5bfa7b6-4b8f-4e6c-ab56-f48298d78dd5.log
+	data_prep/shapeit_22092017_19h37m13s_c44c81c5-b586-4ff6-b544-37fc3b279872.log
+	data_prep/vcfs/
+	ecaviar.pyc
+	finemap.pyc
+	nohup.out
+	plot_loci.pyc
+	preprocess.pyc
+	tabix_snps.pyc
+	ukbb/nohup.out
+	../tmp
+
+no changes added to commit (use "git add" and/or "git commit -a")
