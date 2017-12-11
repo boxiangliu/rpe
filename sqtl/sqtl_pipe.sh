@@ -99,7 +99,7 @@ parallel -j1 /users/zappala/software/fastqtl/bin/fastQTL \
 --region chr{} \
 --window 1e5 \
 --permute 1000 10000 \
---out ../processed_data/sqtl/fastQTL/permutation/glucose/chr{}.permutation.txt.gz ::: 16
+--out ../processed_data/sqtl/fastQTL/permutation/glucose/chr{}.permutation.txt.gz ::: {1..22}
 
 zcat ../processed_data/sqtl/fastQTL/permutation/glucose/chr{1..22}.permutation.txt.gz | \
 gzip > ../processed_data/sqtl/fastQTL/permutation/glucose/all.permutation.txt.gz
@@ -197,6 +197,7 @@ Rscript sqtl/utils/combine_covariates.R \
 
 
 # sQTL mapping with fastQTL in nominal mode:
+mkdir ../processed_data/sqtl/fastQTL/nominal/galactose/
 parallel -j10 /users/zappala/software/fastqtl/bin/fastQTL \
 --vcf ../data/genotype/asvcf/galactose_nodup/rpe.imputed.chr{}.all_filters.vcf.new.gz \
 --bed ../data/rnaseq/leafcutter/galactose/cluster/sqtl_perind.counts.gz.qqnorm_chr{}.gz \
@@ -212,6 +213,7 @@ gzip > ../processed_data/sqtl/fastQTL/nominal/galactose/all.nominal.txt.gz
 
 
 # sQTL mapping with fastQTL in permutation mode:
+mkdir ../processed_data/sqtl/fastQTL/permutation/galactose/
 parallel -j1 /users/zappala/software/fastqtl/bin/fastQTL \
 --vcf ../data/genotype/asvcf/galactose_nodup/rpe.imputed.chr{}.all_filters.vcf.new.gz \
 --bed ../data/rnaseq/leafcutter/galactose/cluster/sqtl_perind.counts.gz.qqnorm_chr{}.gz \
@@ -219,7 +221,7 @@ parallel -j1 /users/zappala/software/fastqtl/bin/fastQTL \
 --region chr{} \
 --window 1e5 \
 --permute 1000 10000 \
---out ../processed_data/sqtl/fastQTL/permutation/galactose/chr{}.permutation.txt.gz ::: 16
+--out ../processed_data/sqtl/fastQTL/permutation/galactose/chr{}.permutation.txt.gz ::: {1..22}
 
 zcat ../processed_data/sqtl/fastQTL/permutation/galactose/chr{1..22}.permutation.txt.gz | \
 gzip > ../processed_data/sqtl/fastQTL/permutation/galactose/all.permutation.txt.gz
@@ -242,6 +244,7 @@ Rscript sqtl/fastQTL/count_sqtl.R \
 ../processed_data/sqtl/fastQTL/nominal/galactose/all.nominal.txt.gz \
 ../processed_data/sqtl/fastQTL/count_sqtl/galactose/ \
 fastqtl.nominal
+
 
 Rscript sqtl/fastQTL/count_sqtl.R \
 ../processed_data/sqtl/fastQTL/permutation/galactose/all.permutation.txt.gz \
