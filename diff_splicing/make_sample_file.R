@@ -6,6 +6,7 @@ library(stringr)
 
 glu_junc_fn='../data/rnaseq/leafcutter/glucose/juncfiles.txt'
 gal_junc_fn='../data/rnaseq/leafcutter/galactose/juncfiles.txt'
+junc_fn='../data/rnaseq/leafcutter/both/juncfiles.txt'
 geno_pc_fn='../processed_data/genotype_pc/genotype_pc/pc_nodup.tsv'
 gender_fn='../processed_data/sex/sex/gender.tsv'
 out_dir='../processed_data/diff_splicing/sample_file/'
@@ -13,16 +14,12 @@ if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
 
 read_junc_file=function(fn){
 	junc=fread(fn,header=FALSE,col.names=c('filename'))
-	junc[,filename:=str_replace(filename,'.junc','')]
-	junc[,sample:=basename(filename)]
+	junc[,library:=str_replace(basename(filename),'.junc','')]
+	junc[,sample:=str_split_fixed(library,'_',2)[,1]]
+	junc[,treatment:=str_split_fixed(library,'_',2)[,2]]
 	return(junc)
 }
 
-make_sample_table=function(x1,x2,group1,group2){
-	x1=cbind(x1,treatment=group1)
-	x2=cbind(x2,treatment=group2)
-	return(rbind(x1,x2))
-}
 
 
 read_geno_pc=function(geno_pc_fn,num){
@@ -57,13 +54,12 @@ add_covariate=function(sample_table,geno_pc,gender){
 }
 
 main=function(){
-	glu_junc=read_junc_file(glu_junc_fn)
-	gal_junc=read_junc_file(gal_junc_fn)
-	sample_table=make_sample_table(glu_junc,gal_junc,'glu','gal')
+	sample_table=read_junc_file(junc_fn)
 	geno_pc=read_geno_pc(geno_pc_fn,2)
 	gender=read_gender(gender_fn)
 	sample_table=add_covariate(sample_table,geno_pc,gender)
-	fwrite(sample_table[,list(filename,treatment,PC1,PC2,gender)],sprintf('%s/sample_table.txt',out_dir),sep='\t',col.names=FALSE)
+	fwrite(sample_table[,list(library,treatment,PC1,PC2,gender)],sprintf('%s/sample_table.txt',out_dir),sep='\t',col.names=FALSE)
+	fwrite(sample_table[,list(library,treatment)],sprintf('%s/sample_table_no_cov.txt',out_dir),sep='\t',col.names=FALSE)
 }
 
 main()
