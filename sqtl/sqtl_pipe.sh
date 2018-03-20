@@ -223,6 +223,7 @@ parallel -j1 /users/zappala/software/fastqtl/bin/fastQTL \
 --permute 1000 10000 \
 --out ../processed_data/sqtl/fastQTL/permutation/galactose/chr{}.permutation.txt.gz ::: {1..22}
 
+
 zcat ../processed_data/sqtl/fastQTL/permutation/galactose/chr{1..22}.permutation.txt.gz | \
 gzip > ../processed_data/sqtl/fastQTL/permutation/galactose/all.permutation.txt.gz
 
