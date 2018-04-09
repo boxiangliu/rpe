@@ -133,8 +133,6 @@ dev.off()
 
 
 # Merge RPE and 1kg:
-dosage$ID=rownames(dosage)
-setDT(dosage)
 dosage_merged=merge(dosage,dosage_1kg_chr1,by='ID',sort=FALSE)
 setDF(dosage_merged)
 rownames(dosage_merged)=dosage_merged$ID
@@ -147,6 +145,7 @@ pc=prcomp(dosage_merged_t,center=TRUE,scale=FALSE)
 
 
 # Save PCA results:
+saveRDS(pc,sprintf('%s/pc_with_1kg_nodup.rds',out_dir))
 out=as.data.frame(pc$x)
 out$sample=rownames(out)
 setcolorder(out,c(ncol(out),1:(ncol(out)-1)))
@@ -168,7 +167,7 @@ to_plot[,label:=ifelse(super_pop=='unknown',sample,'')]
 
 pdf(sprintf("%s/pc_with_1kg_nodup.pdf",fig_dir))
 plot(pc)
-ggplot(to_plot,aes(PC1,PC2,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
-ggplot(to_plot,aes(PC1,PC3,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
-ggplot(to_plot,aes(PC2,PC3,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)
+ggplot(to_plot,aes(PC1,PC2,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)+scale_color_discrete(name = 'Ancestry', breaks = c('AFR','AMR','EAS','EUR','SAS','unknown'), labels =c('African','Native American','East Asian','European','South Asian','Unknown (RPE)'))
+ggplot(to_plot,aes(PC1,PC3,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)+scale_color_discrete(name = 'Ancestry', breaks = c('AFR','AMR','EAS','EUR','SAS','unknown'), labels =c('African','Native American','East Asian','European','South Asian','Unknown (RPE)'))
+ggplot(to_plot,aes(PC2,PC3,color=super_pop,label=label))+geom_point(size=5,alpha=0.5)+geom_text_repel(force=3)+scale_color_discrete(name = 'Ancestry', breaks = c('AFR','AMR','EAS','EUR','SAS','unknown'), labels =c('African','Native American','East Asian','European','South Asian','Unknown (RPE)'))
 dev.off()
