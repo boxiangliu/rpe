@@ -1,5 +1,5 @@
-mkdir -p ../data/joint3/asvcf_snpEff/
-out_dir=../processed_data/sqtl/fastQTL/snpEff/
+mkdir -p ../data/genotype/filt/snpEff/
+out_dir=../processed_data/variant_annotation/snpEff/
 mkdir -p $out_dir
 
 # Functions: 
@@ -27,21 +27,33 @@ export -f extract_anno
 
 
 # Annotate using SnpEff:
-parallel -j10 \
+parallel -j22 \
 java -Xmx4g \
 -jar /srv/persistent/bliu2/tools/snpEff/snpEff.jar \
-hg19 \
-../data/joint3/asvcf/phased_and_imputed.chr{}.rename.dr2.hwe.indellt51.rnasample.hg19.vcf.new.gz '|' \
+GRCh37.75 \
+../data/genotype/filt/rpe.imputed.chr{}.all_filters.vcf.gz '|' \
 bgzip '>' \
-../data/joint3/asvcf_snpEff/chr{}.snpEff.gz ::: {1..22}
+../data/genotype/filt/snpEff/chr{}.snpEff.vcf.gz ::: {1..22}
+
+# Annote with ClinVar:
+parallel -j22 \
+java -Xmx4g \
+-jar /srv/persistent/bliu2/tools/snpEff/SnpSift.jar \
+annotate ../data/clinvar/clinvar.vcf.gz \
+../data/genotype/filt/snpEff/chr{}.snpEff.vcf.gz '|' \
+bgzip '>' \
+../data/genotype/filt/snpEff/chr{}.snpEff.clinvar.vcf.gz ::: {1..22}
+
+# Remove intermediate files: 
+rm ../data/genotype/filt/snpEff/chr*.snpEff.vcf.gz
 
 # Concatenate:
-zcat ../data/joint3/asvcf_snpEff/chr{1..22}.snpEff.gz | \
-bgzip > ../data/joint3/asvcf_snpEff/all.snpEff.gz
+zcat ../data/genotype/filt/snpEff/chr{1..22}.snpEff.clinvar.vcf.gz | \
+bgzip > ../data/genotype/filt/snpEff/all.snpEff.clinvar.vcf.gz
 
 # Extract all annotations using SnpSift:
 parallel -j10 \
-extract_anno ../data/joint3/asvcf_snpEff/all.snpEff.gz \
+extract_anno ../data/genotype/filt/snpEff/all.snpEff.clinvar.vcf.gz \
 {} \
 $out_dir/{}.bed.gz \
 ::: downstream_gene_variant exon_variant intron_variant missense_variant \
@@ -49,4 +61,4 @@ splice_acceptor_variant splice_donor_variant splice_region_variant \
 synonymous_variant upstream_gene_variant 3_prime_UTR_variant 5_prime_UTR_variant
 
 # Concatenate:
-zcat $out_dir/*_variant.bed.gz | bgzip > $out_dir/all.bed
+zcat $out_dir/*_variant.bed.gz | bgzip > $out_dir/all.bed.gz
