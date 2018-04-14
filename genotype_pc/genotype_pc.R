@@ -14,6 +14,16 @@ fig_dir='../figures/genotype_pc/genotype_pc/'
 if(!dir.exists(out_dir)) dir.create(out_dir)
 if(!dir.exists(fig_dir)) dir.create(fig_dir,recursive=T)
 
+plot_screeplot = function(pc,top = 10){
+	variance = pc$sdev^2
+	total_variance = sum(variance)
+	proportion = variance/total_variance
+	data = data.table(pc = seq_along(proportion), proportion)
+	ggplot(data[1:top], aes(pc, proportion)) + 
+		geom_point() + 
+		geom_line() + 
+		scale_x_continuous(breaks = 1:top, labels = 1:top)
+}
 
 # Read RPE genotype dosage:
 in_fn=list.files(rpe_dir,pattern='chr')
@@ -146,6 +156,8 @@ pc=prcomp(dosage_merged_t,center=TRUE,scale=FALSE)
 
 # Save PCA results:
 saveRDS(pc,sprintf('%s/pc_with_1kg_nodup.rds',out_dir))
+Sys.chmod(sprintf('%s/pc_with_1kg_nodup.rds',out_dir), "444", use_umask = FALSE)
+pc = readRDS(sprintf('%s/pc_with_1kg_nodup.rds',out_dir))
 out=as.data.frame(pc$x)
 out$sample=rownames(out)
 setcolorder(out,c(ncol(out),1:(ncol(out)-1)))
@@ -164,6 +176,9 @@ setDT(to_plot)
 to_plot[,super_pop:=ifelse(is.na(super_pop),'unknown',super_pop)]
 to_plot[,label:=ifelse(super_pop=='unknown',sample,'')]
 
+pdf(sprintf("%s/screeplot_with_1kg_nodup.pdf",fig_dir))
+plot_screeplot(pc)
+dev.off()
 
 pdf(sprintf("%s/pc_with_1kg_nodup.pdf",fig_dir))
 plot(pc)

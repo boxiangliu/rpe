@@ -1,4 +1,4 @@
-out_dir=../processed_data/rnaseq_qc/verifyBamID/
+export out_dir=../processed_data/rnaseq_qc/verifyBamID/
 mkdir -p $out_dir
 
 extract_chr1_and_convert_to_GRCh37(){
@@ -18,22 +18,23 @@ rehead_vcf(){
 
 export -f rehead_vcf 
 
-verifyBamID(){
-	condition=$1
-	bam=$2
+run_verifyBamID(){
+	bam=$1
 	sample=$(basename $bam)
 	extract_chr1_and_convert_to_GRCh37 $bam $out_dir/$sample
 	verifyBamID --vcf $out_dir/rpe.imputed.chr1.all_filters.vcf.gz \
 	--bam $out_dir/$sample \
-	--out $out_dir/$sample \
+	--out $out_dir/${sample}_out \
 	--verbose \
 	--noPhoneHome \
-	--ignoreRG
+	--ignoreRG \
+	--best
 }
 
-export -f verifyBamID
+export -f run_verifyBamID
+
 rehead_vcf ../data/genotype/filt/rpe.imputed.chr1.all_filters.vcf.gz \
 ../data/meta/dna2rna.txt \
 $out_dir/rpe.imputed.chr1.all_filters.vcf.gz
 
-parallel verifyBamID {1} {2} ::: glucose galactose ::: $(ls ../data/rnaseq/bam/$condition/*.bam)
+parallel -j10 run_verifyBamID {} ::: $(ls ../data/rnaseq/bam/*/*.bam)
