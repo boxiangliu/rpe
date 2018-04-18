@@ -13,12 +13,14 @@ galactose_dir = '../processed_data/rasqual/output/galactose/joint/'
 treeQTL_MT_fn = '../processed_data/response_eQTL/treeQTL_MT/eGenesMT.txt'
 out_dir = '../processed_data/QTL_landscape/eQTL_manhattan/'
 fig_dir = '../figures/QTL_landscape/eQTL_manhattan/'
+imprinted_gene_fn = '../data/imprinted_genes/imprinted_genes.txt'
+
 if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
 
 read_rasqual = function(fn){
-	rasqual = fread(fn,header=FALSE)[,c(1,3,4,11)]
-	colnames = c('fid','chr','pos','chisq')
+	rasqual = fread(fn,header=FALSE)[,c(1,3,4,11,12)]
+	colnames = c('fid','chr','pos','chisq','pi')
 	setnames(rasqual,colnames)
 	rasqual[,rank := rank(-chisq,ties.method='random')]
 	rasqual = rasqual[rank == 1]
@@ -76,7 +78,7 @@ plot_manhattan = function(eqtl){
 	return(p)
 }
 
-label_eQTL = function(data,top=10){
+label_eQTL_by_logp = function(data,top=10){
 	diff = data[glucose_specific==TRUE,list(gene_id, gene_name, diff = glucose_logp - galactose_logp)]
 	setorder(diff,-diff)
 	data$label = ''
@@ -92,12 +94,34 @@ label_eQTL = function(data,top=10){
 	return(data)
 }
 
-plot_scatterplot = function(glucose,galactose,top = 5, log = TRUE){
+merge_glucose_galactose = function(glucose,galactose){
 	data = merge(
-		glucose[,list(gene_id,gene_name,glucose_logp=logp,glucose_specific=treatment_specific,glucose_shared = eQTL)],
-		galactose[,list(gene_id,galactose_logp=logp,galactose_specific=treatment_specific,galactose_shared = eQTL)]
+		glucose[,list(gene_id,gene_name,glucose_pi = pi, glucose_logp=logp,glucose_specific=treatment_specific,glucose_shared = eQTL&!treatment_specific)],
+		galactose[,list(gene_id,galactose_pi = pi, galactose_logp=logp,galactose_specific=treatment_specific,galactose_shared = eQTL&!treatment_specific)]
 		,by='gene_id')
-	data = label_eQTL(data,top = top)
+	return(data)
+}
+
+rank_eQTL_by_pi = function(data){
+	delta_pi = abs(data$glucose_pi - 0.5) - abs(data$galactose_pi - 0.5)
+	delta_pi = ifelse(data$glucose_specific==TRUE,delta_pi,-Inf)
+	data$glucose_specific_rank = rank(-delta_pi,ties.method='first')
+
+	delta_pi = abs(data$galactose_pi - 0.5) - abs(data$glucose_pi - 0.5)
+	delta_pi = ifelse(data$galactose_specific==TRUE,delta_pi,-Inf)
+	data$galactose_specific_rank = rank(-delta_pi,ties.method='first')
+
+	sum_pi = abs(data$glucose_pi - 0.5) + abs(data$galactose_pi - 0.5)
+	sum_pi = ifelse(data$glucose_shared==TRUE,sum_pi, -Inf)
+	data$shared_rank = rank(-sum_pi,ties.method='first')
+	return(data)
+}
+
+plot_scatterplot = function(glucose,galactose,top = 5, log = TRUE){
+	data = merge_glucose_galactose(glucose,galactose)
+	imprinted_gene = fread(imprinted_gene_fn)
+	data = data[!(gene_name %in% imprinted_gene$Gene)]
+	data = label_eQTL_by_logp(data,top = top)
 	data$color = 'black'
 	data[,color := ifelse(glucose_shared,'green',color)]
 	data[,color := ifelse(galactose_shared,'green',color)]
@@ -126,6 +150,41 @@ plot_scatterplot = function(glucose,galactose,top = 5, log = TRUE){
 	}
 
 
+	return(p)
+}
+
+plot_scatterplot_label_by_pi = function(glucose,galactose,top = 5, log = TRUE){
+	data = merge_glucose_galactose(glucose,galactose)
+	imprinted_gene = fread(imprinted_gene_fn)
+	data = data[!(gene_name %in% imprinted_gene$Gene)]
+	data = rank_eQTL_by_pi(data)
+	data[,label := ifelse(glucose_specific_rank<=5|galactose_specific_rank<=5|shared_rank<=5,gene_name,'')]
+	data$color = 'black'
+	data[,color := ifelse(glucose_shared,'green',color)]
+	data[,color := ifelse(galactose_shared,'green',color)]
+	data[,color := ifelse(glucose_specific,'red',color)]
+	data[,color := ifelse(galactose_specific,'blue',color)]
+	if (log){
+		p = ggplot(data,aes(glucose_logp,galactose_logp,color=color,label=label)) + 
+			geom_point(alpha = 0.5) + 
+			geom_abline(intercept = 0, slope =1, color = 'black', linetype = 'dashed') + 
+			scale_color_manual(name = '', breaks = c('blue','red','green'), labels = c('Galactose-specific','Glucose-specific','Shared'),values = c(black='black',red='red',blue='blue',green='green')) + 
+			xlab(expression(Glucose -log['10'](P-value))) + 
+			ylab(expression(Galactose -log['10'](P-value))) + 
+			theme(legend.position = 'top') + 
+			geom_text_repel(color = 'black', show.legend =FALSE) + 
+			scale_x_log10() + 
+			scale_y_log10()
+	} else {
+		p = ggplot(data,aes(glucose_logp,galactose_logp,color=color,label=label)) + 
+			geom_point(alpha = 0.5) + 
+			geom_abline(intercept = 0, slope =1, color = 'black', linetype = 'dashed') + 
+			scale_color_manual(name = '', breaks = c('blue','red','green'), labels = c('Galactose-specific','Glucose-specific','Shared'),values = c(black='black',red='red',blue='blue',green='green')) + 
+			xlab(expression(Glucose -log['10'](P-value))) + 
+			ylab(expression(Galactose -log['10'](P-value))) + 
+			theme(legend.position = 'top') + 
+			geom_text_repel(color = 'black',show.legend = FALSE)
+	}
 	return(p)
 }
 
@@ -191,15 +250,18 @@ get_response_eQTLs = function(glucose,galactose){
 		glucose[,list(gene_id,gene_name,glucose_logp=logp,glucose_specific=treatment_specific,glucose_shared = eQTL)],
 		galactose[,list(gene_id,galactose_logp=logp,galactose_specific=treatment_specific,galactose_shared = eQTL)]
 		,by='gene_id')
-	glucose_specific = data[glucose_specific==TRUE,list(gene_id, gene_name, diff = glucose_logp - galactose_logp)]
-	setorder(glucose_specific,-diff)
+	glucose_specific = data[glucose_specific==TRUE,list(gene_id, gene_name, metric = glucose_logp - galactose_logp)]
+	setorder(glucose_specific,-metric)
 	glucose_specific$eQTL = 'Glucose-specific'
 	
-	galactose_specific = data[galactose_specific==TRUE,list(gene_id, gene_name, diff = galactose_logp - glucose_logp)]
-	setorder(galactose_specific,-diff)
+	galactose_specific = data[galactose_specific==TRUE,list(gene_id, gene_name, metric = galactose_logp - glucose_logp)]
+	setorder(galactose_specific,-metric)
 	galactose_specific$eQTL = 'Galactose-specific'
 
-	response_eQTLs = rbind(glucose_specific,galactose_specific)
+	shared = data[glucose_shared==TRUE&galactose_shared==TRUE,list(gene_id, gene_name, metric = galactose_logp + glucose_logp)]
+	setorder(shared,-metric)
+	shared$eQTL = 'Shared'
+	response_eQTLs = rbind(glucose_specific,galactose_specific,shared)
 	return(response_eQTLs)
 }
 # Main:
@@ -217,6 +279,8 @@ glucose = foreach(fn = glucose_list, .combine = rbind)%dopar%{
 glucose$eQTL = add_eQTL_indicator(glucose$gene_id,treeQTL_MT[glucose==1,gene])
 glucose$treatment_specific = add_eQTL_indicator(glucose$gene_id,treeQTL_MT[glucose==1&galactose==0,gene])
 glucose$treatment = 'Glucose'
+out_fn = sprintf('%s/rasqual_glucose_top_eQTL.txt',out_dir)
+fwrite(glucose,out_fn,sep='\t')
 
 galactose_list = list.files(galactose_dir,pattern = 'txt',recursive=TRUE,full.names=TRUE)
 galactose = foreach(fn = galactose_list, .combine = rbind)%dopar%{
@@ -226,6 +290,8 @@ galactose = foreach(fn = galactose_list, .combine = rbind)%dopar%{
 galactose$eQTL = add_eQTL_indicator(galactose$gene_id,treeQTL_MT[galactose==1,gene])
 galactose$treatment_specific = add_eQTL_indicator(galactose$gene_id,treeQTL_MT[galactose==1&glucose==0,gene])
 galactose$treatment = 'Galactose'
+out_fn = sprintf('%s/rasqual_galactose_top_eQTL.txt',out_dir)
+fwrite(galactose,out_fn,sep='\t')
 
 #-----------#
 # manhattan #
@@ -240,6 +306,7 @@ dev.off()
 #--------------#
 # scatter plot #
 #--------------#
+###--- ranked by difference in P-value ---###
 p = plot_scatterplot(glucose,galactose,log=FALSE)
 fig_fn = sprintf('%s/scatterplot.pdf',fig_dir)
 save_plot(fig_fn,p,base_width = 6, base_height = 6)
@@ -248,10 +315,16 @@ p = plot_scatterplot(glucose,galactose,log=TRUE)
 fig_fn = sprintf('%s/scatterplot_log.pdf',fig_dir)
 save_plot(fig_fn,p,base_width = 6, base_height = 6)
 
-# Save a list of response eQTLs:
-response_eQTLs = get_response_eQTLs(glucose,galactose)
-out_fn = sprintf('%s/response_eQTLs.txt',out_dir)
-fwrite(response_eQTLs,out_fn,sep='\t')
+
+###---- ranked by difference in pi ---####
+p = plot_scatterplot_label_by_pi(glucose,galactose,log=FALSE)
+fig_fn = sprintf('%s/scatterplot_label_by_pi.pdf',fig_dir)
+save_plot(fig_fn,p,base_width = 6, base_height = 6)
+
+p = plot_scatterplot_label_by_pi(glucose,galactose,log=TRUE)
+fig_fn = sprintf('%s/scatterplot_log_label_by_pi.pdf',fig_dir)
+save_plot(fig_fn,p,base_width = 6, base_height = 6)
+
 
 #-------------#
 # cicros plot #
