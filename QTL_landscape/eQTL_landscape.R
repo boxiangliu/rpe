@@ -237,12 +237,12 @@ plot_circos = function(glucose,galactose){
 		galactose[,list(gene_id,galactose = eQTL)],
 		by='gene_id')
 	data[,shared := glucose & galactose]
-	glucose_line = data[glucose == TRUE, list(chr,start,end,glucose)]
-	galactose_line = data[galactose == TRUE, list(chr,start,end,galactose)]
+	glucose_line = data[glucose == TRUE & shared == FALSE, list(chr,start,end,glucose)]
+	galactose_line = data[galactose == TRUE & shared == FALSE, list(chr,start,end,galactose)]
 	shared_line = data[shared == TRUE, list(chr,start,end,shared)]
-	RCircos.Vertical.Line.Plot(glucose_line, track.num=1, side="in",color='blue')
-	RCircos.Vertical.Line.Plot(galactose_line, track.num=2, side="in",color='red')
-	RCircos.Vertical.Line.Plot(shared_line, track.num=3, side="in",color='black')
+	RCircos.Vertical.Line.Plot(shared_line, track.num=1, side="in",color='black')
+	RCircos.Vertical.Line.Plot(glucose_line, track.num=2, side="in",color='blue')
+	RCircos.Vertical.Line.Plot(galactose_line, track.num=3, side="in",color='red')
 }
 
 get_response_eQTLs = function(glucose,galactose){
@@ -281,6 +281,7 @@ glucose$treatment_specific = add_eQTL_indicator(glucose$gene_id,treeQTL_MT[gluco
 glucose$treatment = 'Glucose'
 out_fn = sprintf('%s/rasqual_glucose_top_eQTL.txt',out_dir)
 fwrite(glucose,out_fn,sep='\t')
+# glucose = fread(out_fn)
 
 galactose_list = list.files(galactose_dir,pattern = 'txt',recursive=TRUE,full.names=TRUE)
 galactose = foreach(fn = galactose_list, .combine = rbind)%dopar%{
@@ -292,6 +293,7 @@ galactose$treatment_specific = add_eQTL_indicator(galactose$gene_id,treeQTL_MT[g
 galactose$treatment = 'Galactose'
 out_fn = sprintf('%s/rasqual_galactose_top_eQTL.txt',out_dir)
 fwrite(galactose,out_fn,sep='\t')
+# galactose = fread(out_fn)
 
 #-----------#
 # manhattan #
