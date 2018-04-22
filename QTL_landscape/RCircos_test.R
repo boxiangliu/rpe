@@ -1,4 +1,3 @@
-install.packages('RCircos')
 library(RCircos)
 
 data(UCSC.HG19.Human.CytoBandIdeogram)

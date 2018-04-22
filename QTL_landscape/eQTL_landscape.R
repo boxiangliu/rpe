@@ -229,7 +229,7 @@ setup_circos = function(tracks.inside, tracks.outside, chr.exclude = NULL){
 	RCircos.Set.Core.Components(cyto.info, chr.exclude,tracks.inside, tracks.outside)
 }
 
-plot_circos = function(glucose,galactose){
+plot_circos = function(glucose,galactose,rpe_specific_eGenes){
 	RCircos.Set.Plot.Area()
 	RCircos.Chromosome.Ideogram.Plot()
 	data = merge(
@@ -240,9 +240,14 @@ plot_circos = function(glucose,galactose){
 	glucose_line = data[glucose == TRUE & shared == FALSE, list(chr,start,end,glucose)]
 	galactose_line = data[galactose == TRUE & shared == FALSE, list(chr,start,end,galactose)]
 	shared_line = data[shared == TRUE, list(chr,start,end,shared)]
+	rpe_specific_line = data[gene_id %in% rpe_specific_eGenes$gene,list(chr,start,end,gene_name)]
 	RCircos.Vertical.Line.Plot(shared_line, track.num=1, side="in",color='black')
 	RCircos.Vertical.Line.Plot(glucose_line, track.num=2, side="in",color='blue')
 	RCircos.Vertical.Line.Plot(galactose_line, track.num=3, side="in",color='red')
+	RCircos.Vertical.Line.Plot(rpe_specific_line, track.num=4, side="in",color='green')
+	RCircos.Gene.Connector.Plot(rpe_specific_line,track.num=5, side='in')
+	setDF(rpe_specific_line)
+	RCircos.Gene.Name.Plot(gene.data = rpe_specific_line,name.col=4,track.num=6, side='in')
 }
 
 get_response_eQTLs = function(glucose,galactose){
@@ -331,9 +336,11 @@ save_plot(fig_fn,p,base_width = 6, base_height = 6)
 #-------------#
 # cicros plot #
 #-------------#
-setup_circos(tracks.inside = 3, tracks.outside = 0, chr.exclude = c('chrX','chrY'))
+rpe_specific_eGenes_fn = '../processed_data/specific_eQTL/specific_eGenes_v2//rpe_specific_eGenes.txt'
+rpe_specific_eGenes = fread(rpe_specific_eGenes_fn)
+setup_circos(tracks.inside = 6, tracks.outside = 0, chr.exclude = c('chrX','chrY'))
 fig_fn = sprintf('%s/circos.pdf',fig_dir)
 pdf(fig_fn,width = 6,height=6)
-plot_circos(glucose,galactose)
-legend('topright',legend = c('Glucose','Galactose','Shared'),col = c('blue','red','black'),pch = 19)
+plot_circos(glucose,galactose,rpe_specific_eGenes)
+legend('topright',legend = c('Glucose','Galactose','Shared','RPE-specific'),col = c('blue','red','black','green'),pch = 19)
 dev.off()

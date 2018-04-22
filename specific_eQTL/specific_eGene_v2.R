@@ -14,6 +14,8 @@ glucose_eGenes_fn = '../processed_data/rasqual/output/glucose/treeQTL/eGenes.txt
 galactose_eGenes_fn = '../processed_data/rasqual/output/galactose/treeQTL/eGenes.txt'
 gtex_tissue_color_fn = '../data/gtex/gtex_tissue_colors.txt'
 fig_dir = '../figures/specific_eQTL/specific_eGenes_v2/'
+out_dir = '../processed_data/specific_eQTL/specific_eGenes_v2/'
+if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
 
 #-----------#
@@ -98,6 +100,7 @@ plot_FDR = function(data){
 #------#
 # Main #
 #------#
+# Read data: 
 treeQTL_MT = read_TreeQTL_MT(treeQTL_MT_fn)
 shared_eQTL = treeQTL_MT[glucose == 1 & galactose == 1]
 
@@ -107,17 +110,20 @@ GTEx = foreach(fn = fn_list,.combine = rbind)%dopar%{
 	read_GTEx(fn)
 }
 
+# Fine RPE-specific eQTL:
 QVAL = 0.1
 GTEx_eQTL = foreach(gene = shared_eQTL[,gene],.combine = rbind)%dopar%{
 	screen_GTEx(gene,GTEx,QVAL)
 }
 
+# Make plot data:
 glucose_eGenes = read_TreeQTL(glucose_eGenes_fn)
 galactose_eGenes = read_TreeQTL(galactose_eGenes_fn)
 
 tissue_color = read_tissue_color(gtex_tissue_color_fn)
 tissue_abbreviation = read_tissue_abbreviation(gtex_tissue_color_fn)
 
+# Make plots:
 p = foreach(gene = GTEx_eQTL[eQTL == FALSE, gene])%do%{
 	data = make_plot_data(gene, GTEx, glucose_eGenes, galactose_eGenes)
 	plot_FDR(data)
@@ -128,3 +134,7 @@ col2 = plot_grid(p[[2]],p[[3]],align='v',nrow=2,labels = c('B','C'),rel_heights 
 grid_p = plot_grid(p[[1]],col2,nrow=1,labels=c('A',''))
 fig_fn = sprintf('%s/rpe_specific_eGenes.pdf',fig_dir)
 save_plot(fig_fn,grid_p,base_height=6,base_width=6)
+
+# Save RPE-specific eQTL:
+out_fn = sprintf('%s/rpe_specific_eGenes.txt',out_dir)
+fwrite(GTEx_eQTL[eQTL == FALSE],out_fn,sep='\t')
