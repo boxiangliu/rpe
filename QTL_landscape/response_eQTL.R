@@ -15,16 +15,18 @@ glucose_covariate_fn = '../processed_data/select_covariates/merge_covariates/glu
 galactose_covariate_fn = '../processed_data/select_covariates/merge_covariates/gal_sex_geno_sva.tsv'
 imprinted_gene_fn = '../data/imprinted_genes/imprinted_genes.txt'
 fig_dir = '../figures/QTL_landscape/response_eQTL/'
-
+out_dir = '../processed_data/QTL_landscape/response_eQTL/'
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
+if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
+
 
 read_response_eQTL = function(fn){
 	response_eQTL = fread(fn)
 	return(response_eQTL)
 }
 
-find_rasqual_fn = function(gene_name,dir){
-	fn = list.files(dir,pattern=paste0('_',gene_name,'.txt'),recursive=TRUE,full.names=TRUE)
+find_rasqual_fn = function(gene_id,gene_name,dir){
+	fn = list.files(dir,pattern=paste0(gene_id,'_',gene_name,'.txt'),recursive=TRUE,full.names=TRUE)
 	stopifnot(length(fn)==1)
 	return(fn)
 }
@@ -49,24 +51,30 @@ read_rasqual = function(fn){
 read_genotype = function(snp,dir = genotype_dir){
 	chr = str_replace(snp$chr,'chr','')
 	pos = snp$pos
+	ref = snp$ref
+	alt = snp$alt
+
 	tmp_fn = tempfile()
 	tmp_fn = paste0(tmp_fn,'.vcf')
 	vcf_fn = sprintf('%s/rpe.imputed.chr%s.all_filters.vcf.gz',dir,chr)
 	region = sprintf('%s:%s',chr,pos)
 	command = sprintf('bcftools view -r %s %s > %s',region,vcf_fn,tmp_fn)
 	system(command)
+
 	command = sprintf('bcftools query -H -f "%%CHROM\\t%%POS\\t%%REF\\t%%ALT[\\t%%DS]\\n" %s',tmp_fn)
 	result = system(command,intern=TRUE)
-	stopifnot(length(result)==2)
 	split_header = str_split(result[1],'\t')[[1]]
 	split_header = str_extract(split_header,'(?<=])(.+?)(?=(:|$))')
-	split_result = str_split(result[2],'\t')[[1]]
-	ref = split_result[3]
-	alt = tolower(split_result[4])
+	pattern = paste0(paste(chr,pos,ref,alt,sep='\t'),'\t')
+	idx = which(str_detect(result,pattern))
+	stopifnot(length(idx)==1)
+	split_result = str_split(result[idx],'\t')[[1]]
+
+	alt = tolower(alt)
 	genotype = data.table(genotype = round(as.numeric(split_result[5:length(split_result)])))
-	g0 = paste0(ref,'/',ref)
-	g1 = paste0(ref,'/',alt)
-	g2 = paste0(alt,'/',alt)
+	g0 = paste0(ref,ref)
+	g1 = paste0(ref,alt)
+	g2 = paste0(alt,alt)
 	genotype[, genotype := ifelse(genotype == 0, g0, genotype)]
 	genotype[, genotype := ifelse(genotype == 1, g1, genotype)]
 	genotype[, genotype := ifelse(genotype == 2, g2, genotype)]
@@ -113,38 +121,57 @@ get_residual = function(expression,covariate){
 	return(residual)
 }
 
+normalize_residual = function(residual){
+	max = max(residual$residual)
+	min = min(residual$residual)
+	range = max-min
+	residual[,residual:=residual/range]
+	return(residual)
+}
+
 plot_eQTL = function(gxe){
 	p = ggplot(gxe,aes(genotype,residual,fill = treatment)) + 
 		geom_boxplot() +
 		facet_grid(.~treatment) +
-		xlab('Genotype') + 
-		ylab('Expression residuals') + 
-		scale_fill_discrete(guide='none') + 
+		xlab('') + 
+		ylab('Normalized residuals') + 
+		scale_fill_manual(guide='none',values = c(Glucose = 'red', Galactose = 'green')) + 
 		theme(strip.background =element_rect(fill="white",color='black',size=1,linetype = 'solid'))
 	return(p)
 }
 
 
+get_snp = function(rasqual){
+	snp = rasqual[,list(sid,chr,pos)]
+	split_sid = str_split_fixed(snp$sid,'_',5)
+	snp$ref = split_sid[,3]
+	snp$alt = split_sid[,4]
+	return(snp)
+}
 
 plot_eQTL_driver = function(gene_id,gene_name,dir,expression_matrix){
-	fn = find_rasqual_fn(gene_name,dir)
+	fn = find_rasqual_fn(gene_id,gene_name,dir)
 	rasqual = read_rasqual(fn)
-	snp = rasqual[,list(sid,chr,pos)]
+	snp = get_snp(rasqual)
 
 	genotype = read_genotype(snp)
 	genotype = update_name(genotype)
 
 	glucose_expression = subset_expression_matrix(expression_matrix,gene_id,'glucose')
 	glucose_residual = get_residual(glucose_expression,glucose_covariate)
-	
+	glucose_residual = normalize_residual(glucose_residual)
+
 	galactose_expression = subset_expression_matrix(expression_matrix,gene_id,'galactose')
 	galactose_residual = get_residual(galactose_expression,galactose_covariate)
+	galactose_residual = normalize_residual(galactose_residual)
 
 	glucose_residual$treatment = 'Glucose'
 	galactose_residual$treatment = 'Galactose'
 	residual = rbind(glucose_residual,galactose_residual)
 	gxe = merge(genotype,residual)
+	gxe[,treatment:=factor(treatment,c('Glucose','Galactose'))]
 	p = plot_eQTL(gxe)
+	return(p)
 }
 
 merge_glucose_galactose = function(glucose,galactose){
@@ -240,9 +267,7 @@ expression_matrix = read_expression(expression_fn)
 #--------------------#
 # galactose-specific #
 #--------------------#
-
-
-galactose_p = foreach(i = 1:nrow(galactose_eQTL))%dopar%{
+galactose_p = foreach(i = 1:nrow(galactose_eQTL))%do%{
 
 	gene_id = galactose_eQTL[i,gene_id]
 	gene_name = galactose_eQTL[i,gene_name]
@@ -250,17 +275,20 @@ galactose_p = foreach(i = 1:nrow(galactose_eQTL))%dopar%{
 	message(gene_id)
 	message(gene_name)
 
-	p = plot_eQTL_driver(gene_id,gene_name,glucose_dir,expression_matrix)
-	fig_fn = sprintf('%s/galactose_specific/galactoseSpecific-%s-%s-%s.pdf',fig_dir,gene_name,gene_id,snp$sid) 
+	p = plot_eQTL_driver(gene_id,gene_name,galactose_dir,expression_matrix) + ggtitle(gene_name)
+	fig_fn = sprintf('%s/galactose_specific/galactoseSpecific-%s-%s.pdf',fig_dir,gene_name,gene_id) 
 	save_plot(fig_fn,p,base_height=4,base_width=4)
 
 	return(p)
 }
+names(galactose_p) = galactose_eQTL$gene_name
+out_fn = sprintf('%s/galactose_specific_eQTL_plots.rds',out_dir)
+saveRDS(galactose_p,out_fn)
 
 #------------------#
 # glucose-specific #
 #------------------#
-glucose_p = foreach(i = 1:nrow(glucose_eQTL))%dopar%{
+glucose_p = foreach(i = 1:nrow(glucose_eQTL))%do%{
 
 	gene_id = glucose_eQTL[i,gene_id]
 	gene_name = glucose_eQTL[i,gene_name]
@@ -268,17 +296,20 @@ glucose_p = foreach(i = 1:nrow(glucose_eQTL))%dopar%{
 	message(gene_id)
 	message(gene_name)
 
-	p = plot_eQTL_driver(gene_id,gene_name,galactose_dir,expression_matrix)
-	fig_fn = sprintf('%s/glucose_specific/glucoseSpecific-%s-%s-%s.pdf',fig_dir,gene_name,gene_id,snp$sid) 
+	p = plot_eQTL_driver(gene_id,gene_name,glucose_dir,expression_matrix) + ggtitle(gene_name)
+	fig_fn = sprintf('%s/glucose_specific/glucoseSpecific-%s-%s.pdf',fig_dir,gene_name,gene_id) 
 	save_plot(fig_fn,p,base_height=4,base_width=4)
 
 	return(p)
 }
+names(glucose_p) = glucose_eQTL$gene_name
+out_fn = sprintf('%s/glucose_specific_eQTL_plots.rds',out_dir)
+saveRDS(glucose_p,out_fn)
 
 #--------#
 # shared #
 #--------#
-shared_p = foreach(i = 1:nrow(shared_eQTL))%dopar%{
+shared_p = foreach(i = 1:nrow(shared_eQTL))%do%{
 
 	gene_id = shared_eQTL[i,gene_id]
 	gene_name = shared_eQTL[i,gene_name]
@@ -286,14 +317,19 @@ shared_p = foreach(i = 1:nrow(shared_eQTL))%dopar%{
 	message(gene_id)
 	message(gene_name)
 
-	p = plot_eQTL_driver(gene_id,gene_name,glucose_dir,expression_matrix)
-	fig_fn = sprintf('%s/shared/shared-%s-%s-%s.pdf',fig_dir,gene_name,gene_id,snp$sid) 
+	p = plot_eQTL_driver(gene_id,gene_name,glucose_dir,expression_matrix) + ggtitle(gene_name)
+	fig_fn = sprintf('%s/shared/shared-%s-%s.pdf',fig_dir,gene_name,gene_id) 
 	save_plot(fig_fn,p,base_height=4,base_width=4)
 
 	return(p)
 }
+names(shared_p) = shared_eQTL$gene_name
+out_fn = sprintf('%s/shared_eQTL_plots.rds',out_dir)
+saveRDS(shared_p,out_fn)
 
-#######################
+#----------#
+# ASE plot #
+#----------#
 imprinted_gene = fread(imprinted_gene_fn)
 data = merge_glucose_galactose(glucose,galactose)
 data = data[!(gene_name %in% imprinted_gene$Gene)]

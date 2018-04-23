@@ -242,12 +242,12 @@ plot_circos = function(glucose,galactose,rpe_specific_eGenes){
 	shared_line = data[shared == TRUE, list(chr,start,end,shared)]
 	rpe_specific_line = data[gene_id %in% rpe_specific_eGenes$gene,list(chr,start,end,gene_name)]
 	RCircos.Vertical.Line.Plot(shared_line, track.num=1, side="in",color='black')
-	RCircos.Vertical.Line.Plot(glucose_line, track.num=2, side="in",color='blue')
-	RCircos.Vertical.Line.Plot(galactose_line, track.num=3, side="in",color='red')
-	RCircos.Vertical.Line.Plot(rpe_specific_line, track.num=4, side="in",color='green')
-	RCircos.Gene.Connector.Plot(rpe_specific_line,track.num=5, side='in')
+	RCircos.Vertical.Line.Plot(glucose_line, track.num=2, side="in",color='red')
+	RCircos.Vertical.Line.Plot(galactose_line, track.num=3, side="in",color='green')
+	RCircos.Vertical.Line.Plot(rpe_specific_line, track.num=4, side="in",color='blue')
+	# RCircos.Gene.Connector.Plot(rpe_specific_line,track.num=5, side='in')
 	setDF(rpe_specific_line)
-	RCircos.Gene.Name.Plot(gene.data = rpe_specific_line,name.col=4,track.num=6, side='in')
+	RCircos.Gene.Name.Plot(gene.data = rpe_specific_line,name.col=4,track.num=5, side='in')
 }
 
 get_response_eQTLs = function(glucose,galactose){
@@ -286,7 +286,7 @@ glucose$treatment_specific = add_eQTL_indicator(glucose$gene_id,treeQTL_MT[gluco
 glucose$treatment = 'Glucose'
 out_fn = sprintf('%s/rasqual_glucose_top_eQTL.txt',out_dir)
 fwrite(glucose,out_fn,sep='\t')
-# glucose = fread(out_fn)
+glucose = fread(out_fn)
 
 galactose_list = list.files(galactose_dir,pattern = 'txt',recursive=TRUE,full.names=TRUE)
 galactose = foreach(fn = galactose_list, .combine = rbind)%dopar%{
@@ -298,7 +298,7 @@ galactose$treatment_specific = add_eQTL_indicator(galactose$gene_id,treeQTL_MT[g
 galactose$treatment = 'Galactose'
 out_fn = sprintf('%s/rasqual_galactose_top_eQTL.txt',out_dir)
 fwrite(galactose,out_fn,sep='\t')
-# galactose = fread(out_fn)
+galactose = fread(out_fn)
 
 #-----------#
 # manhattan #
@@ -338,9 +338,18 @@ save_plot(fig_fn,p,base_width = 6, base_height = 6)
 #-------------#
 rpe_specific_eGenes_fn = '../processed_data/specific_eQTL/specific_eGenes_v2//rpe_specific_eGenes.txt'
 rpe_specific_eGenes = fread(rpe_specific_eGenes_fn)
+num_shared_eQTL = nrow(glucose[eQTL == TRUE&treatment_specific==FALSE])
+num_glucose_eQTL = nrow(glucose[treatment_specific==TRUE])
+num_galactose_eQTL = nrow(galactose[treatment_specific==TRUE])
+num_rpe_specific_eQTL = nrow(rpe_specific_eGenes)
+legend = c(paste0('Shared = ',num_shared_eQTL),
+	paste0('Glucose = ',num_glucose_eQTL),
+	paste0('Galactose = ',num_galactose_eQTL),
+	paste0('RPE-specific = ',num_rpe_specific_eQTL))
+
 setup_circos(tracks.inside = 6, tracks.outside = 0, chr.exclude = c('chrX','chrY'))
 fig_fn = sprintf('%s/circos.pdf',fig_dir)
 pdf(fig_fn,width = 6,height=6)
 plot_circos(glucose,galactose,rpe_specific_eGenes)
-legend('topright',legend = c('Glucose','Galactose','Shared','RPE-specific'),col = c('blue','red','black','green'),pch = 19)
+legend('center',bty = 'n', legend = legend,col = c('black','red','green','blue'),pch = 19)
 dev.off()

@@ -42,16 +42,17 @@ read_GTEx = function(fn){
 }
 
 screen_GTEx = function(gene,GTEx,QVAL){
-	qval = GTEx[gene_id == gene, list(qval,tissue,slope,slope_se)]
+	qval = GTEx[gene_id == gene, list(qval,tissue,slope,slope_se,gene_name)]
 	if (nrow(qval)==0){
 		return(NULL)
 	}
+	gene_name = qval$gene_name
 	not_eQTL = all(qval$qval > QVAL)
 	min_qval = min(qval$qval)
 	tissue = qval[which.min(qval),tissue]
 	slope = qval[which.min(qval),slope]
 	slope_se = qval[which.min(qval),slope_se]
-	GTEx_eQTL = data.table(gene,eQTL = !not_eQTL,slope,slope_se,min_qval,tissue)
+	GTEx_eQTL = data.table(gene_id = gene, gene_name, eQTL = !not_eQTL,slope,slope_se,min_qval,tissue)
 	return(GTEx_eQTL)
 }
 
@@ -61,7 +62,7 @@ read_tissue_color = function(gtex_tissue_color_fn){
 	gtex_tissue_color[,tissue_color_hex:=paste0('#',tissue_color_hex)]
 	tissue_color = gtex_tissue_color$tissue_color_hex
 	names(tissue_color) = gtex_tissue_color$tissue_site_detail_id
-	tissue_color = c(tissue_color,c(`RPE - glucose` = '#555555', `RPE - galactose` = '#555555'))
+	tissue_color = c(tissue_color,c(`RPE - glucose` = '#FF0000', `RPE - galactose` = '#00FF00'))
 	return(tissue_color)
 }
 
@@ -124,11 +125,16 @@ tissue_color = read_tissue_color(gtex_tissue_color_fn)
 tissue_abbreviation = read_tissue_abbreviation(gtex_tissue_color_fn)
 
 # Make plots:
-p = foreach(gene = GTEx_eQTL[eQTL == FALSE, gene])%do%{
+gene_list = unique(GTEx_eQTL[eQTL == FALSE,gene_id])
+p = foreach(gene = gene_list)%do%{
 	data = make_plot_data(gene, GTEx, glucose_eGenes, galactose_eGenes)
-	plot_FDR(data)
+	gene_name = GTEx_eQTL[gene_id==gene,unique(gene_name)]
+	plot_FDR(data) + ggtitle(gene_name)
 }
-names(p) = GTEx_eQTL[eQTL == FALSE, gene]
+names(p) = gene_list
+out_fn = sprintf('%s/rpe_specific_eGenes.rds',out_dir)
+saveRDS(list(GTEx_eQTL=GTEx_eQTL,GTEx=GTEx,glucose_eGenes=glucose_eGenes,galactose_eGenes=galactose_eGenes,
+	tissue_color=tissue_color,tissue_abbreviation=tissue_abbreviation),out_fn)
 
 col2 = plot_grid(p[[2]],p[[3]],align='v',nrow=2,labels = c('B','C'),rel_heights = c(5.5,8))
 grid_p = plot_grid(p[[1]],col2,nrow=1,labels=c('A',''))
