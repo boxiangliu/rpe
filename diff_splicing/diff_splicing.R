@@ -1,13 +1,16 @@
 # Perform differential splicing analysis with leafcutter
 # Boxiang Liu
 # 2017-12-11
-
+library(openxlsx)
 library(leafcutter)
 library(foreach)
 library(doMC)
 registerDoMC(10)
 library(gap)
 library(stringr)
+library(data.table)
+
+known_covariates_fn = '../processed_data/hidden_covariates/known_covariates/tables.xlsx'
 
 count_fn='../data/rnaseq/leafcutter/both/cluster/diff_splice_perind_numers.counts.gz'
 exon_file='/srv/persistent/bliu2/tools/leafcutter/leafcutter/data/gencode19_exons.txt.gz'
@@ -17,6 +20,35 @@ fig_dir='../figures/diff_splicing/diff_splicing/'
 
 if (!dir.exists(dirname(out_prefix))){dir.create(dirname(out_prefix),recursive=TRUE)}
 if (!dir.exists(fig_dir)){dir.create(fig_dir,recursive=TRUE)}
+
+read_known_covariates = function(fn,batch_as_indicator = FALSE){
+	x1 = read.xlsx(fn,sheet = 1, rows = 1:25)
+	x2 = read.xlsx(fn,sheet = 2)
+	setDT(x1);setDT(x2)
+	x2[,ID := tolower(Sample)]
+	x2[,Sample := str_split_fixed(ID,'_',2)[,1]]
+	x = merge(x1,x2,by='Sample')
+	x$Sample = NULL
+	x[,Sex := ifelse(Sex=='M',0,1)]
+	x[,Treatment := ifelse(Treatment == 'glucose',0,1)]
+	x[,Ancestry := NULL]
+	if (batch_as_indicator){
+		x[,Batch := as.character(Batch)]
+		x[,Batch := factor(Batch,as.character(1:12))]
+		batch_matrix = model.matrix(~Batch+0,data = x[,list(Batch)])
+		x = cbind(x,data.table(batch_matrix))
+		x$Batch = NULL
+	} else {
+		x[,Batch := as.integer(Batch)]
+	}
+	return(x)
+}
+
+order_covariates_by_count_matrix = function(covariates,counts){
+	sample = colnames(counts)
+	idx = match(sample,covariates$ID)
+	return(covariates[idx,])
+}
 
 read_x=function(sample_table_fn){
 	predictor=read.table(sample_table_fn)
@@ -69,11 +101,15 @@ make_sashimi_plot=function(cluster_table,counts,x,num,fig_dir){
 }
 
 counts=read.table(count_fn,check.names=FALSE)
-x=read_x(sample_table_fn)
-# confounders=read_confounders(sample_table_fn)
+known_covariates = read_known_covariates(known_covariates_fn,batch_as_indicator=TRUE)
+known_covariates = order_covariates_by_count_matrix(known_covariates,counts)
+x = known_covariates$Treatment
+confounders=copy(known_covariates)
+confounders[,c('ID','Treatment'):=NULL]
+confounders = as.matrix(confounders)
 exons_table = read.table(exon_file, header=T, stringsAsFactors = F)
 
-results=differential_splicing(counts,x)
+results=differential_splicing(counts,x,confounders)
 
 cluster_table = cluster_results_table(results)
 cluster_table$cluster = add_chr(cluster_table$cluster)
@@ -81,11 +117,10 @@ cluster_table=assign_gene(cluster_table,exon_file,counts)
 write.table(cluster_table, paste0(out_prefix,"_cluster_significance.txt"), quote=F, sep="\t", row.names = F)
 
 effect_size_table = leaf_cutter_effect_sizes(results)
-setnames(effect_size_table,c(''),)
 colnames(effect_size_table)[3:4]=c('glu','gal')
 write.table(effect_size_table,paste0(out_prefix,"_effect_sizes.txt"), quote=F, col.names = T, row.names = F, sep="\t")
 
 # sum(cluster_table$p.adjust<0.05,na.rm=TRUE) # 21
-
 make_QC_plots(cluster_table,effect_size_table,fig_dir)
 make_sashimi_plot(cluster_table,counts,x,10,fig_dir)
+save.image('diff_splicing/diff_splicing.rda')

@@ -20,8 +20,6 @@ read_junc_file=function(fn){
 	return(junc)
 }
 
-
-
 read_geno_pc=function(geno_pc_fn,num){
 	geno_pc=fread(geno_pc_fn)
 	geno_pc=geno_pc[,1:(num+1)]
