@@ -5,22 +5,32 @@ registerDoMC(10)
 library(gap)
 library(stringr)
 
+
 annotation_fn = '/mnt/lab_data/montgomery/shared/datasets/gtex/GTEx_Analysis_2015-01-12/eqtl_updated_annotation/v6_v6p_annotations/gencode.v19.genes.v6p.patched_contigs.bed'
 fig_dir = '../figures/gwas_QTL_overlap/qqplot/'
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
 
 amd_gwas_fn = '../data/gwas/Fritsche_2015_AdvancedAMD.txt'
-glu_treeQTL_fn = '../processed_data/rasqual/output/glucose/treeQTL/eGenes.txt'
-gal_treeQTL_fn = '../processed_data/rasqual/output/galactose/treeQTL/eGenes.txt'
+myopia_gwas_fn = '../data/gwas/23andme_myopia.prepared.txt.gz'
+
+MT_treeQTL_fn = '../processed_data/response_eQTL/treeQTL_MT/eGenesMT.txt'
 glu_rasqual_dir = '../processed_data/rasqual/output/glucose/joint/'
 gal_rasqual_dir = '../processed_data/rasqual/output/galactose/joint/'
 
 glu_sqtl_fn = '../processed_data/sqtl/fastQTL/permutation/glucose/all.permutation.txt.gz'
 gal_sqtl_fn = '../processed_data/sqtl/fastQTL/permutation/galactose/all.permutation.txt.gz'
 
-
 read_treeQTL_eGenes = function(fn,annotation_fn){
 	x = fread(fn)[,list(gene_id = gene)]
+	annotation = fread(annotation_fn)[,c(1,13)][,list(
+		chr = paste0('chr',V1), gene_id = V13)]
+	x = merge(x,annotation,by='gene_id')
+	return(x)
+}
+
+read_MT_treeQTL_eGenes = function(fn,annotation_fn){
+	x = fread(fn)
+	x = x[glucose == 1 & galactose == 1,list(gene_id = gene)]
 	annotation = fread(annotation_fn)[,c(1,13)][,list(
 		chr = paste0('chr',V1), gene_id = V13)]
 	x = merge(x,annotation,by='gene_id')
@@ -58,8 +68,19 @@ eGenes_to_eSNPs = function(eGenes,rasqual_dir){
 		x = fread(fn)[,c(1,2,3,4,11)][,list(gene = V1, 
 			snp = V2, chr = V3, pos = V4, chisq = V11)]
 		snp = x[which.max(chisq),]
+		snp[,gene := str_split_fixed(gene,'_',2)[,1]]
 		return(snp)
 	}
+	return(eSNPs)
+}
+
+eGenes_to_GTEx_eSNPs = function(top=nrow(eGenes),exclude,GTEx_top_association_fn){
+	command = paste('zcat',GTEx_top_association_fn)
+	x = fread(command)[,list(gene=gene_id,snp=variant_id,chr,pos,pval_beta)]
+	x = x[!(gene %in% exclude),]
+	x[,chr:=paste0('chr',chr)]
+	x[,rank:=rank(pval_beta)]
+	eSNPs = x[rank<=top,]
 	return(eSNPs)
 }
 
@@ -112,53 +133,60 @@ make_qqplot = function(pval_list,pval_threshold = 1e-16, n = 1e5){
 		legend = names(pval_list))
 }
 
+add_GTEx_eSNP_to_pval_list = function(pval_list,gwas){
+	LCL_eSNPs = eGenes_to_GTEx_eSNPs(top=nrow(eGenes),eGenes$gene_id,'/mnt/lab_data/montgomery/shared/datasets/gtex/GTEx_Analysis_2016-01-15_v7/eqtls/top_associations/Cells_EBV-transformed_lymphocytes.v7.egenes.txt.gz')
+	subset = subset_GWAS(gwas,LCL_eSNPs)
+	pval_list[['LCL']] = subset$pval
 
+	blood_eSNPs = eGenes_to_GTEx_eSNPs(top=nrow(eGenes),eGenes$gene_id,'/mnt/lab_data/montgomery/shared/datasets/gtex/GTEx_Analysis_2016-01-15_v7/eqtls/top_associations/Whole_Blood.v7.egenes.txt.gz')
+	subset = subset_GWAS(gwas,blood_eSNPs)
+	pval_list[['blood']] = subset$pval
+
+	skin_eSNPs = eGenes_to_GTEx_eSNPs(top=nrow(eGenes),eGenes$gene_id,'/mnt/lab_data/montgomery/shared/datasets/gtex/GTEx_Analysis_2016-01-15_v7/eqtls/top_associations/Skin_Sun_Exposed_Lower_leg.v7.egenes.txt.gz')
+	subset = subset_GWAS(gwas,skin_eSNPs)
+	pval_list[['skin']] = subset$pval
+
+	return(pval_list)
+}
 
 amd_gwas = read_GWAS(amd_gwas_fn, rsid_col = 'Marker', 
 	chr_col = 'Chrom', pos_col = 'Pos', pval_col = 'GC.Pvalue')
 
 
 pval_list = list(GWAS = amd_gwas$pval)
-eQTL_fn_list = list(`Glucose eQTL`=c(glu_treeQTL_fn,glu_rasqual_dir),
-	`Galactose eQTL`=c(gal_treeQTL_fn,gal_rasqual_dir))
+eQTL_fn_list = c(`Glucose eQTL`=glu_rasqual_dir,`Galactose eQTL`=gal_rasqual_dir)
 for (i in seq_along(eQTL_fn_list)){
-	fn = eQTL_fn_list[[i]][1]
-	rasqual_dir = eQTL_fn_list[[i]][2]
+	rasqual_dir = eQTL_fn_list[i]
 	name = names(eQTL_fn_list)[i]
-	eGenes = read_treeQTL_eGenes(fn,annotation_fn)
+	eGenes = read_MT_treeQTL_eGenes(MT_treeQTL_fn,annotation_fn)
 	eSNPs = eGenes_to_eSNPs(eGenes,rasqual_dir)
 	subset = subset_GWAS(amd_gwas,eSNPs)
 	pval_list[[name]] = subset$pval
 }
 
-sQTL_fn_list = c(`Glucose sQTL` = glu_sqtl_fn,
-	`Galactose sQTL` = gal_sqtl_fn)
-for (i in seq_along(sQTL_fn_list)){
-	fn = sQTL_fn_list[i]
-	name = names(sQTL_fn_list)[i]
-	sSNPs = read_sQTL(fn)
-	subset = subset_GWAS(amd_gwas,sSNPs)
-	pval_list[[name]] = subset$pval
-}
+pval_list = add_GTEx_eSNP_to_pval_list(pval_list,amd_gwas)
 
-
-pdf(sprintf('%s/%s_GWAS_eQTL_qqplot.pdf',fig_dir,'AMD'))
+pdf(sprintf('%s/%s_GWAS_eQTL_qqplot_GTEx_eQTL.pdf',fig_dir,'AMD'))
 make_qqplot(pval_list)
 dev.off()
 
+myopia_gwas = read_GWAS(myopia_gwas_fn, rsid_col = 'rsid',
+	chr_col = 'chr', pos_col = 'snp_pos', pval_col = 'pvalue')
 
+pval_list = list(GWAS = myopia_gwas$pval)
+eQTL_fn_list = c(`Glucose eQTL`=glu_rasqual_dir,`Galactose eQTL`=gal_rasqual_dir)
+for (i in seq_along(eQTL_fn_list)){
+	rasqual_dir = eQTL_fn_list[i]
+	name = names(eQTL_fn_list)[i]
+	eGenes = read_MT_treeQTL_eGenes(MT_treeQTL_fn,annotation_fn)
+	eSNPs = eGenes_to_eSNPs(eGenes,rasqual_dir)
+	subset = subset_GWAS(myopia_gwas,eSNPs)
+	pval_list[[name]] = subset$pval
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+pval_list = add_GTEx_eSNP_to_pval_list(pval_list,myopia_gwas)
+pdf(sprintf('%s/%s_GWAS_eQTL_qqplot_GTEx_eQTL.pdf',fig_dir,'Myopia'))
+make_qqplot(pval_list)
+dev.off()
 
 
