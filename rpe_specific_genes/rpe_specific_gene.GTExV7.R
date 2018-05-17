@@ -14,12 +14,16 @@ library(foreach)
 library(doMC)
 registerDoMC(10)
 library(preprocessCore)
+library(manhattan)
+library(ggrepel)
 
 # command line arguments: 
-rpkm_file='../processed_data/mds/preprocess.all_tissue/combined.rpkm'
-coldata_file='../processed_data/mds/preprocess.all_tissue/combined.col'
-out_dir='../processed_data/rpe_specific_genes/'
+rpkm_file='../processed_data/mds/preprocess.GTExV7/combined.rpkm'
+coldata_file='../processed_data/mds/preprocess.GTExV7/combined.col'
+out_dir='../processed_data/rpe_specific_genes.GTExV7/'
+fig_dir='../figures/rpe_specific_genes.GTExV7/'
 if (!dir.exists(out_dir)){dir.create(out_dir)}
+if (!dir.exists(fig_dir)){dir.create(fig_dir)}
 
 select_treatment=function(rpkm,col_data,treatment,format=c('data.table','matrix')){
 	if ('Name'%in%colnames(rpkm)){
@@ -58,14 +62,14 @@ make_plot=function(cor,tissue=c('RPE (glu)','RPE (gal)'),color){
 main=function(){
 	rpkm=fread(rpkm_file,header=T)
 
-	rpe_rpkm=rpkm[,str_detect(colnames(rpkm),'(glu|gal)'),with=FALSE]
-	glu_median=apply(rpkm[,str_detect(colnames(rpkm),'glucose'),with=FALSE],1,median)
-	gal_median=apply(rpkm[,str_detect(colnames(rpkm),'galactose'),with=FALSE],1,median)
-	cor(glu_median,gal_median) # 0.9964466
+	rpe_rpkm=rpkm[,str_detect(colnames(rpkm),'(lucose|alactose)'),with=FALSE]
+	glu_median=apply(rpkm[,str_detect(colnames(rpkm),'lucose'),with=FALSE],1,median)
+	gal_median=apply(rpkm[,str_detect(colnames(rpkm),'alactose'),with=FALSE],1,median)
+	cor(glu_median,gal_median) # 0.9975472
 
 	col_data=fread(coldata_file,header=T)
-	col_data[,tissue:=str_replace(tissue,'gal','')]
-	col_data[,tissue:=str_replace(tissue,'glu','')]
+	col_data[,tissue:=str_replace(tissue,'\\(gal\\)','')]
+	col_data[,tissue:=str_replace(tissue,'\\(glu\\)','')]
 
 	median=foreach(tissue=unique(col_data$tissue),.combine='cbind')%dopar%{
 		x=select_treatment(rpkm,col_data,tissue,'matrix')
@@ -107,10 +111,10 @@ main=function(){
 
 	sd=apply(median_filt_independent,1,sd)
 	mean=apply(median_filt_independent,1,mean)
-	idx=which((median_filt_independent[,'RPE ()']-mean)/sd>4)
+	idx=which((median_filt_independent[,'RPE ']-mean)/sd>4)
 
 	out=data.table(gene_id=rownames(median_filt_independent),
-		rpkm=median_filt_independent[,'RPE ()'],
+		rpkm=median_filt_independent[,'RPE '],
 		mean=mean,
 		sd=sd)
 	out[,zscore:=(rpkm-mean)/sd]
@@ -119,6 +123,45 @@ main=function(){
 
 	fwrite(out,paste0(out_dir,'/all_genes.txt'),sep='\t')
 	fwrite(out[zscore>4,],paste0(out_dir,'/rpe_specific_genes.txt'),sep='\t')
+	return(out)
 }
 
-main()
+make_plot_data = function(out,biotype){
+	plot_data = copy(out)
+	plot_data[,c('chrom','pos','y'):=list(chr,start,zscore)]
+	plot_data = plot_data[!chr%in%c('chrX','chrY','chrM'),]
+	plot_data[,color:=ifelse(abs(zscore)>4,'red',NA)]
+	plot_data[color=='red',color:=ifelse(chr%in%paste0('chr',seq(1,22,2)),'red','pink')]
+	mhc_genes = plot_data[chr=='chr6'&start>28477797&stop<33448354,gene_id]
+	plot_data = plot_data[!gene_id%in%mhc_genes,] # remove MHC genes
+	plot_data = plot_data[type==biotype]
+	plot_data[,rank := rank(-zscore)]
+	plot_data[,label := ifelse(rank<=15,gene_name,NA)]
+	plot_data = add_cumulative_pos(plot_data, 'hg19')
+	return(plot_data)
+}
+
+plot_zscore = function(plot_data,top){
+	p = manhattan(plot_data,build = 'hg19') + 
+		geom_text_repel(
+			data = plot_data[rank<=top],
+			aes(label = gene_name),
+			color='black',
+			direction='x',
+			segment.color = "grey",
+			nudge_y=9-plot_data[rank<=top]$y,
+			angle=90)+
+		ylab('RPE specificity (z-score)')+
+		scale_y_continuous(breaks = seq(-2,9,2),limits = c(-3,9))
+	return(p)
+}
+
+out = main()
+
+plot_data = make_plot_data(out,'protein_coding')
+p = plot_zscore(plot_data,top=17)
+save_plot(sprintf('%s/manhattan_zscore_proteinCoding.pdf',fig_dir),p,base_width=8,base_height=4)
+
+plot_data = make_plot_data(out,'lincRNA')
+p = plot_zscore(plot_data,top=10)
+save_plot(sprintf('%s/manhattan_zscore_lincRNA.pdf',fig_dir),p,base_width=8,base_height=4.5)

@@ -22,15 +22,17 @@ plot_treatment_specific_eQTL = function(rds, genes, labels){
 	plot_grid(p1,p2,nrow = 1, align = 'h', labels = labels) 
 }
 
+
 read_tissue_color = function(gtex_tissue_color_fn){
 	gtex_tissue_color = fread(gtex_tissue_color_fn,colClasses=rep('character',7),sep='\t')
 	gtex_tissue_color = gtex_tissue_color[,list(tissue_site_detail_id,tissue_color_hex,tissue_abbreviation)]
 	gtex_tissue_color[,tissue_color_hex:=paste0('#',tissue_color_hex)]
 	tissue_color = gtex_tissue_color$tissue_color_hex
 	names(tissue_color) = gtex_tissue_color$tissue_site_detail_id
-	tissue_color = c(tissue_color,c(`RPE - glucose` = '#555555', `RPE - galactose` = '#555555'))
+	tissue_color = c(tissue_color,c(`RPE - glucose` = '#FF0000', `RPE - galactose` = '#00FF00'))
 	return(tissue_color)
 }
+
 
 read_tissue_abbreviation = function(gtex_tissue_color_fn){
 	gtex_tissue_color = fread(gtex_tissue_color_fn,colClasses=rep('character',7),sep='\t')

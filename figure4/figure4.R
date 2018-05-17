@@ -47,14 +47,18 @@ make_manhattan_data = function(eQTL_rds,sQTL_rds,cutoff = CUTOFF){
 	return(manhattan_data)
 }
 
-plot_manhattan = function(data,cutoff = CUTOFF){
+plot_manhattan = function(data,label, cutoff = CUTOFF){
 	dummy=data.table(type=c('eQTL','sQTL'),y=c(cutoff,cutoff))
+	text_data = data.frame(cumulative_pos = 5e8, y = 0.4, color = 'black', type = factor('eQTL',levels = c('eQTL','sQTL')))
 	p=manhattan(data,build='hg19')+
 		facet_grid(type~.,scale='free_y')+
 		scale_y_sqrt(breaks = c(0.05,seq(0.1,0.5,0.1)))+
 		geom_text_repel(aes(label=label),color='black')+
 		geom_hline(data=dummy,aes(yintercept=y),color='red',linetype=2)+
-		ylab(paste('Colocalization probability')) 
+		ylab(paste('Colocalization probability')) +
+		theme_bw() + 
+		theme(panel.grid = element_blank(), panel.border = element_rect(size = 1), strip.background = element_rect(color = 'black',fill = 'white', size = 1)) + 
+		geom_text(data = text_data, label = label, size = 5)
 	return(p)
 }
 
@@ -107,10 +111,10 @@ read_myopia_gwas = function(){
 
 # Manhattan:
 amd_manhattan_data = make_manhattan_data(amd_eQTL_manhattan_rds,amd_sQTL_manhattan_rds)
-amd_manhattan_plot = plot_manhattan(amd_manhattan_data)
+amd_manhattan_plot = plot_manhattan(amd_manhattan_data,label='AMD') 
 
 myopia_manhattan_data = make_manhattan_data(myopia_eQTL_manhattan_rds,myopia_sQTL_manhattan_rds)
-myopia_manhattan_plot = plot_manhattan(myopia_manhattan_data)
+myopia_manhattan_plot = plot_manhattan(myopia_manhattan_data, label = 'Myopia')
 
 # Conservation:
 conservation = plot_conservation()
@@ -166,7 +170,8 @@ sQTL_myopia_locuscompare = main(
 	legend = FALSE)
 sQTL_myopia_locuscompare = sQTL_myopia_locuscompare$locuscompare + theme(axis.title = element_text(size=11))
 # save.image('figure4/figure4.rda')
-# load('figure4/figure4.rda')
+load('figure4/figure4.rda')
+
 
 
 # Make Figure 4:
