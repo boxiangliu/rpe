@@ -2,7 +2,7 @@ library(data.table)
 library(cowplot)
 library(foreach)
 
-rpe_specific_gene_fn = '../processed_data/rpe_specific_genes.GTExV7/rpe_specific_genes.txt'
+rpe_specific_gene_fn = '../processed_data/rpe_specific_genes.GTExV7/specific_genes.RPE.txt'
 rpkm_fn = '../processed_data/mds/preprocess.GTExV7/combined.rpkm'
 col_data_fn='../processed_data/mds/preprocess.GTExV7/combined.col'
 gtex_tissue_color_fn = '../data/gtex/gtex_tissue_colors.txt'

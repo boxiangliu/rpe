@@ -59,18 +59,7 @@ make_plot=function(cor,tissue=c('RPE (glu)','RPE (gal)'),color){
 	return(p)
 }
  
-main=function(){
-	rpkm=fread(rpkm_file,header=T)
-
-	rpe_rpkm=rpkm[,str_detect(colnames(rpkm),'(lucose|alactose)'),with=FALSE]
-	glu_median=apply(rpkm[,str_detect(colnames(rpkm),'lucose'),with=FALSE],1,median)
-	gal_median=apply(rpkm[,str_detect(colnames(rpkm),'alactose'),with=FALSE],1,median)
-	cor(glu_median,gal_median) # 0.9975472
-
-	col_data=fread(coldata_file,header=T)
-	col_data[,tissue:=str_replace(tissue,'\\(gal\\)','')]
-	col_data[,tissue:=str_replace(tissue,'\\(glu\\)','')]
-
+calculate_median_rpkm = function(rpkm,col_data){
 	median=foreach(tissue=unique(col_data$tissue),.combine='cbind')%dopar%{
 		x=select_treatment(rpkm,col_data,tissue,'matrix')
 		x_median=apply(x,1,median)
@@ -80,15 +69,10 @@ main=function(){
 	}
 	median=as.matrix(median)
 	rownames(median)=rpkm$Name
+	return(median)
+}
 
-	median_filt=subset_to_protein_and_lncRNA(median)
-
-	corr=cor(median_filt)
-	diag(corr)=0 # set diagonal to 0 to keep current tissue in each iteration.
-
-	median_filt=median_filt[,c(ncol(median_filt),1:(ncol(median_filt)-1))]
-
-	threshold=0.96
+select_indepedent_tissue = function(corr,out_dir,threshold=0.96){
 	n_tissue_kept=0
 	n_tissue_remaining=nrow(corr)
 	neighboring_tissue=list()
@@ -106,24 +90,7 @@ main=function(){
 
 	tissue_kept=colnames(corr)
 	write.table(tissue_kept[1:(length(tissue_kept)-1)],paste0(out_dir,'/tissue_kept.txt'),sep='\t',row.names=FALSE,col.names=FALSE)
-
-	median_filt_independent=median_filt[,tissue_kept]
-
-	sd=apply(median_filt_independent,1,sd)
-	mean=apply(median_filt_independent,1,mean)
-	idx=which((median_filt_independent[,'RPE ']-mean)/sd>4)
-
-	out=data.table(gene_id=rownames(median_filt_independent),
-		rpkm=median_filt_independent[,'RPE '],
-		mean=mean,
-		sd=sd)
-	out[,zscore:=(rpkm-mean)/sd]
-	gencode=fread('../data/gtex/gencode.v19.genes.v6p.hg19.bed',col.names=c('chr','start','stop','strand','gene_id','gene_name','type'))
-	out=merge(out,gencode,by='gene_id')
-
-	fwrite(out,paste0(out_dir,'/all_genes.txt'),sep='\t')
-	fwrite(out[zscore>4,],paste0(out_dir,'/rpe_specific_genes.txt'),sep='\t')
-	return(out)
+	return(tissue_kept)
 }
 
 make_plot_data = function(out,biotype){
@@ -156,8 +123,66 @@ plot_zscore = function(plot_data,top){
 	return(p)
 }
 
-out = main()
+# Read RPKM:
+rpkm=fread(rpkm_file,header=T)
 
+# Calculate glucose and galatose correlation:
+rpe_rpkm=rpkm[,str_detect(colnames(rpkm),'(lucose|alactose)'),with=FALSE]
+glu_median=apply(rpkm[,str_detect(colnames(rpkm),'lucose'),with=FALSE],1,median)
+gal_median=apply(rpkm[,str_detect(colnames(rpkm),'alactose'),with=FALSE],1,median)
+cor(glu_median,gal_median) # 0.9975472
+
+# Read column data:
+col_data=fread(coldata_file,header=T)
+col_data[,tissue:=trimws(str_replace(tissue,'\\(gal\\)',''))]
+col_data[,tissue:=trimws(str_replace(tissue,'\\(glu\\)',''))]
+
+# Calculate median RPKM:
+median = calculate_median_rpkm(rpkm,col_data)
+median_filt=subset_to_protein_and_lncRNA(median)
+
+# Select independent tissues:
+corr=cor(median_filt)
+diag(corr)=0 # set diagonal to 0 to keep current tissue in each iteration.
+
+median_filt=median_filt[,c(ncol(median_filt),1:(ncol(median_filt)-1))] # move RPE to first column
+
+
+tissue_kept = select_indepedent_tissue(corr,out_dir)
+median_filt_independent=median_filt[,tissue_kept]
+
+# Calculate mean and sd:
+sd=apply(median_filt_independent,1,sd)
+mean=apply(median_filt_independent,1,mean)
+
+# Calculate z-score for every tissue:
+foreach(tissue = colnames(median_filt_independent))%dopar%{
+	print(tissue)
+	out=data.table(gene_id=rownames(median_filt_independent),
+		rpkm=median_filt_independent[,tissue],
+		mean=mean,
+		sd=sd)
+	out[,zscore:=(rpkm-mean)/sd]
+	gencode=fread('../data/gtex/gencode.v19.genes.v6p.hg19.bed',col.names=c('chr','start','stop','strand','gene_id','gene_name','type'))
+	out=merge(out,gencode,by='gene_id')
+
+	tissue = str_replace_all(tissue,' ','_')
+	fwrite(out,sprintf('%s/all_genes.%s.txt',out_dir,tissue),sep='\t')
+	fwrite(out[zscore>4,],sprintf('%s/specific_genes.%s.txt',out_dir,tissue),sep='\t')
+}
+
+
+# Caculate again for RPE for plotting:
+out=data.table(gene_id=rownames(median_filt_independent),
+	rpkm=median_filt_independent[,'RPE'],
+	mean=mean,
+	sd=sd)
+out[,zscore:=(rpkm-mean)/sd]
+gencode=fread('../data/gtex/gencode.v19.genes.v6p.hg19.bed',col.names=c('chr','start','stop','strand','gene_id','gene_name','type'))
+out=merge(out,gencode,by='gene_id')
+
+
+# Plot z-score manhattan plot:
 plot_data = make_plot_data(out,'protein_coding')
 p = plot_zscore(plot_data,top=17)
 save_plot(sprintf('%s/manhattan_zscore_proteinCoding.pdf',fig_dir),p,base_width=8,base_height=4)
