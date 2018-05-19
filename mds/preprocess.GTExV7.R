@@ -41,7 +41,8 @@ combined_rpkm$Name=NULL
 combined_rpkm$Description=NULL
 
 temp=data.table(sample=colnames(rpe)[3:ncol(rpe)])
-temp[,tissue:=ifelse(str_detect(sample,'glucose'),'RPE (glu)', 'RPE (gal)')]
+temp[,tissue:=ifelse(str_detect(sample,'lucose'),'RPE (glu)', 'RPE (gal)')]
+
 
 col_data=rbind(gtex_sample_info,temp)
 idx=match(colnames(combined_rpkm),col_data$sample)
@@ -60,17 +61,29 @@ row_data=row_data[keep]
 
 # log2(x+2) transform:
 message('log transforming...')
-combined_rpkm=log2(combined_rpkm+2)
+combined_rpkm_log2xp1=log2(combined_rpkm+1)
+combined_rpkm_log2xp2=log2(combined_rpkm+2)
 
 
 # add gene id: 
 combined_rpkm$Name=row_data$Name
 setcolorder(combined_rpkm,c(ncol(combined_rpkm),seq(ncol(combined_rpkm)-1)))
+combined_rpkm_log2xp1$Name=row_data$Name
+setcolorder(combined_rpkm_log2xp1,c(ncol(combined_rpkm_log2xp1),seq(ncol(combined_rpkm_log2xp1)-1)))
+combined_rpkm_log2xp2$Name=row_data$Name
+setcolorder(combined_rpkm_log2xp2,c(ncol(combined_rpkm_log2xp2),seq(ncol(combined_rpkm_log2xp2)-1)))
 
 
 # write output: 
+message('writing output...')
 out_rpkm=paste0(out_dir,'/combined.rpkm')
 out_col_data=paste0(out_dir,'/combined.col')
-message('writing output...')
 fwrite(combined_rpkm,out_rpkm,sep="\t")
 fwrite(col_data,out_col_data,sep="\t")
+
+out_rpkm=paste0(out_dir,'/combined_logxp1.rpkm')
+fwrite(combined_rpkm_log2xp1,out_rpkm,sep="\t")
+
+out_rpkm=paste0(out_dir,'/combined_logxp2.rpkm')
+fwrite(combined_rpkm_log2xp2,out_rpkm,sep="\t")
+

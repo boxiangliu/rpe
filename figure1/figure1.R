@@ -69,7 +69,6 @@ read_tissue_abbreviation = function(gtex_tissue_color_fn){
 	return(tissue_abbreviation)
 }
 
-
 plot_gene = function(plot_data,tissue_color,tissue_abbreviation,title,top){
 	median_rpkm = plot_data[,list(rpkm = median(rpkm)),by='tissue']
 	setorder(median_rpkm,-rpkm)
@@ -81,42 +80,54 @@ plot_gene = function(plot_data,tissue_color,tissue_abbreviation,title,top){
 		scale_x_discrete(breaks = names(tissue_abbreviation), labels = tissue_abbreviation) + 
 		scale_fill_manual(values = tissue_color, guide = 'none') + 
 		xlab('') + 
-		ylab('RPKM') + 
+		ylab(expression(paste(log[10],'(RPKM+2)'))) + 
 		scale_y_log10(breaks=seq(1,10,2)) + 
 		coord_flip() + 
 		ggtitle(title)
 	return(p)
 }
 
-# MDS plot: 
-mds_fn = '../processed_data/mds/mds.GTExV7/small_mds.rds'
-load(mds_fn)
-blank = ggplot() + geom_blank()
 
-# z-score Manhattan plot:
-zscore_fn = '../processed_data/rpe_specific_genes.GTExV7/all_genes.txt'
-zscore = fread(zscore_fn)
-plot_data = make_plot_data(zscore,'protein_coding')
-p = plot_zscore(plot_data,top=17)
-
-# RPE-specific gene examples:
+# Read tissue color and abbreviation:
 tissue_abbreviation = read_tissue_abbreviation(gtex_tissue_color_fn)
 tissue_color = read_tissue_color(gtex_tissue_color_fn)
+
+# MDS plot: 
+mds_fn = '../processed_data/mds/mds.GTExV7/mds_plot_data.rda'
+result = readRDS(mds_fn)
+mds = result[[1]]
+mds_centroid = result[[2]]
+p1=ggplot(mds,aes(x=x,y=y,color=tissue))+
+	geom_point()+scale_color_manual(values=tissue_color,guide='none')+
+	geom_text(data=mds_centroid,aes(x=x_centroid,
+		y=y_centroid,label=label),color='black')+
+	theme_bw()+xlab('MDS Coordinate 1')+ylab('MDS Coordinate 2')+
+	theme(axis.title=element_text(size=15))
+
+
+# z-score Manhattan plot:
+zscore_fn = '../processed_data/rpe_specific_genes.GTExV7/all_genes.RPE.txt'
+zscore = fread(zscore_fn)
+plot_data = make_plot_data(zscore,'protein_coding')
+p2 = plot_zscore(plot_data,top=17)
+
+# RPE-specific gene examples:
 top = 25
 rpe_specific_gene_dir = '../processed_data/rpe_specific_genes/plot_rpe_specific_gene.GTExV7/'
 gene_name1 = 'RPE65'
 fn1 = sprintf('%s/%s.txt',rpe_specific_gene_dir,gene_name1)
 x1 = fread(fn1)
-p1 = plot_gene(x1,tissue_color,tissue_abbreviation,title=gene_name1,top=top) + theme(axis.text.y=element_blank(),axis.ticks.y=element_blank())
+p3 = plot_gene(x1,tissue_color,tissue_abbreviation,title=gene_name1,top=top) + theme(axis.text.y=element_blank(),axis.ticks.y=element_blank())
+
 
 rpe_specific_gene_dir = '../processed_data/rpe_specific_genes/plot_rpe_specific_gene.GTExV7/'
 gene_name2 = 'RGR'
 fn2 = sprintf('%s/%s.txt',rpe_specific_gene_dir,gene_name2)
 x2 = fread(fn2)
-p2 = plot_gene(x2,tissue_color,tissue_abbreviation,title=gene_name2,top =top) + theme(axis.text.y=element_blank(),axis.ticks.y=element_blank())
+p4 = plot_gene(x2,tissue_color,tissue_abbreviation,title=gene_name2,top =top) + theme(axis.text.y=element_blank(),axis.ticks.y=element_blank())
 
-left = plot_grid(blank,p,nrow=2,rel_heights = c(2,1),labels = c('A','B'))
-right = plot_grid(p1,p2,nrow=2,rel_heights = c(1,1),labels = c('C','D'))
+left = plot_grid(p1,p2,nrow=2,rel_heights = c(2,1),labels = c('A','B'))
+right = plot_grid(p3,p4,nrow=2,rel_heights = c(1,1),labels = c('C','D'))
 entire = plot_grid(left,right,ncol=2,rel_widths = c(3,1),labels = '')
-save_plot(sprintf('%s/figure1.pdf',fig_dir),entire,base_height=9,base_width=8)
+save_plot(sprintf('%s/figure1.pdf',fig_dir),entire,base_height=8.5,base_width=8)
 

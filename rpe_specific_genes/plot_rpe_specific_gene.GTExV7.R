@@ -3,7 +3,7 @@ library(cowplot)
 library(foreach)
 
 rpe_specific_gene_fn = '../processed_data/rpe_specific_genes.GTExV7/specific_genes.RPE.txt'
-rpkm_fn = '../processed_data/mds/preprocess.GTExV7/combined.rpkm'
+rpkm_fn = '../processed_data/mds/preprocess.GTExV7/combined_logxp2.rpkm'
 col_data_fn='../processed_data/mds/preprocess.GTExV7/combined.col'
 gtex_tissue_color_fn = '../data/gtex/gtex_tissue_colors.txt'
 fig_dir = '../figures/rpe_specific_genes/plot_rpe_specific_gene.GTExV7/'
@@ -71,11 +71,11 @@ make_plot_data = function(rpkm,col_data,gene_id){
 
 plot_gene = function(plot_data,tissue_color,tissue_abbreviation,title){
 	p = ggplot(plot_data,aes(tissue,rpkm,fill = tissue)) + 
-		geom_boxplot() + 
+		geom_boxplot(outlier.size=-1) + 
 		scale_x_discrete(breaks = names(tissue_abbreviation), labels = tissue_abbreviation) + 
 		scale_fill_manual(values = tissue_color, guide = 'none') + 
 		xlab('') + 
-		ylab('RPKM') + 
+		ylab(expression(paste(log[10],'(RPKM+2)'))) + 
 		scale_y_log10() + 
 		coord_flip() + 
 		ggtitle(title)
@@ -117,7 +117,6 @@ tissue_color = read_tissue_color(gtex_tissue_color_fn)
 tissue_abbreviation = read_tissue_abbreviation(gtex_tissue_color_fn)
 tissue_to_tissue_id = get_tissue_to_tissue_id(gtex_tissue_color_fn)
 col_data$tissue = tissue_to_tissue_id[col_data$tissue]
-
 rpe_specific_proteinCodingGene = rpe_specific_gene[type=='protein_coding']
 
 # Make main figure:
@@ -131,6 +130,7 @@ for (i in 1:20){
 	fwrite(plot_data,sprintf('%s/%s.txt',out_dir,gene_name),sep='\t')
 	save_plot(sprintf('%s/%s.pdf',fig_dir,gene_name),p,base_height=8,base_width=4)
 }
+
 
 # Make supplementary figure:
 plot_data_2 = make_plot_data_2(rpe_specific_proteinCodingGene)

@@ -18,7 +18,7 @@ library(manhattan)
 library(ggrepel)
 
 # command line arguments: 
-rpkm_file='../processed_data/mds/preprocess.GTExV7/combined.rpkm'
+rpkm_file='../processed_data/mds/preprocess.GTExV7/combined_logxp2.rpkm'
 coldata_file='../processed_data/mds/preprocess.GTExV7/combined.col'
 out_dir='../processed_data/rpe_specific_genes.GTExV7/'
 fig_dir='../figures/rpe_specific_genes.GTExV7/'
