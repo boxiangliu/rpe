@@ -10,6 +10,8 @@ GEDi_fn = '../data/eye_disease/GEDi.txt'
 zscore_fn = '../processed_data/rpe_specific_genes.GTExV7/all_genes.RPE.txt'
 zscore_dir = '../processed_data/rpe_specific_genes.GTExV7/'
 gtex_tissue_color_fn = '../data/gtex/gtex_tissue_colors.txt'
+fig_dir = '../figures/disease_enrichment/mendelian/GEDi_enrichment/'
+if (!dir.exists(fig_dir)) dir.create(fig_dir,recursive=TRUE)
 
 read_tissue = function(tissue_fn){
 	tissue = unname(unlist(fread(tissue_fn,header=FALSE)))
@@ -82,16 +84,16 @@ setorder(t_stat,beta)
 t_stat[,tissue:=tissue_to_tissue_id[tissue]]
 t_stat[,tissue:=factor(tissue,levels=tissue)]
 
-ggplot(t_stat,aes(x=tissue,y=beta,ymax=ub,ymin=lb,color=tissue))+
-geom_hline(yintercept = 0) + 
-geom_linerange(color='gray',size=1.5) +
-geom_point(size=3) + 
-xlab('') +
-ylab('Enrichment beta (95% CI)') + 
-scale_color_manual(values = tissue_color,guide='none') + 
-scale_x_discrete(labels = tissue_abbreviation) + 
-coord_flip() 
+p = ggplot(t_stat,aes(x=tissue,y=beta,ymax=ub,ymin=lb,color=tissue))+
+	geom_hline(yintercept = 0) + 
+	geom_linerange(color='gray',size=1.5) +
+	geom_point(size=3) + 
+	xlab('') +
+	ylab('Enrichment beta (95% CI)') + 
+	scale_color_manual(values = tissue_color,guide='none') + 
+	scale_x_discrete(labels = tissue_abbreviation) + 
+	coord_flip() 
 
-ggplot(zscore,aes(GEDi,zscore)) + geom_violin()
-ggplot(zscore,aes(GEDi,zscore)) + geom_boxplot()
-ggplot(zscore,aes(zscore,color=GEDi)) + geom_density()
+fig_fn = sprintf('%s/GEDi_enrichment.pdf',fig_dir)
+save_plot(fig_fn,p,base_height=5.5,base_width=5.5)
+
