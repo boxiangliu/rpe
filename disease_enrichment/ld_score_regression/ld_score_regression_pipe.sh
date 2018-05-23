@@ -1,0 +1,5 @@
+Rscript disease_enrichment/ld_score_regression/tissue_specific_snp_annotation.R
+bash disease_enrichment/ld_score_regression/gwas_sumstats.sh
+bash disease_enrichment/ld_score_regression/ldscore_merged.sh
+bash disease_enrichment/ld_score_regression/partition_heritability_merged.sh
+
