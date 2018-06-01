@@ -18,7 +18,7 @@ library(preprocessCore)
 # command line arguments: 
 rpkm_file='../processed_data/mds/preprocess.all_tissue/combined.rpkm'
 coldata_file='../processed_data/mds/preprocess.all_tissue/combined.col'
-out_dir='../processed_data/rpe_specific_genes/'
+out_dir='../processed_data/rpe_specific_genes/rpe_specific_gene_qnorm/'
 if (!dir.exists(out_dir)){dir.create(out_dir)}
 
 select_treatment=function(rpkm,col_data,treatment,format=c('data.table','matrix')){

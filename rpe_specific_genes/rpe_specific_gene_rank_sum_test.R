@@ -18,8 +18,8 @@ library(preprocessCore)
 # command line arguments: 
 rpkm_file='../processed_data/mds/preprocess.all_tissue/combined.rpkm'
 coldata_file='../processed_data/mds/preprocess.all_tissue/combined.col'
-out_dir='../processed_data/rpe_specific_genes_rank_sum_test/'
-fig_dir='../figures/rpe_specific_genes_rank_sum_test/'
+out_dir='../processed_data/rpe_specific_genes/rpe_specific_genes_rank_sum_test/'
+fig_dir='../figures/rpe_specific_genes/rpe_specific_genes_rank_sum_test/'
 if (!dir.exists(out_dir)){dir.create(out_dir)}
 if (!dir.exists(fig_dir)){dir.create(fig_dir)}
 

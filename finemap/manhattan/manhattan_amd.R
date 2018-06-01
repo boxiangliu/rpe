@@ -1,9 +1,9 @@
 library(data.table)
 library(cowplot)
 library(ggrepel)
-library(manhattan)
 library(locuscomparer)
 library(stringr)
+source('finemap/manhattan/utils.R')
 
 clpp_fn='../processed_data/finemap/manhattan/2018-02-02_12-36-28_rpe_amd/Fritsche_sorted_txt_gz_finemap_clpp_status.txt'
 fig_dir='../figures/finemap/manhattan/manhattan_amd/'
@@ -38,16 +38,7 @@ cutoff = 0.05
 data[,condition:=factor(condition,level=c('Glucose','Galactose'))]
 data[,label:=ifelse(y>cutoff,gene_name,'')]
 data[,chrom:=paste0('chr',chrom)]
-data[condition=='Glucose',y:=-y]
-dummy=data.table(condition=c('Glucose','Galactose'),y=c(-cutoff,cutoff))
+p = plot_manhattan(data,cutoff=cutoff)
 
-p=manhattan(data,build='hg19')+
-	facet_grid(condition~.,scale='free_y')+
-	scale_y_continuous(labels=function(x){abs(x)})+
-	geom_text_repel(aes(label=label))+
-	geom_hline(data=dummy,aes(yintercept=y),color='red',linetype=2)+
-	ylab(paste('CLPP'))
-
-
-saveRDS(list(data,dummy,p),sprintf('%s/manhattan.rds',out_dir))
+saveRDS(list(data,p),sprintf('%s/manhattan.rds',out_dir))
 save_plot(sprintf('%s/manhattan.pdf',fig_dir),p,base_width=8,base_height=4)

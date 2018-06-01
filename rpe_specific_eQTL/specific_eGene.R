@@ -3,8 +3,8 @@ library(VennDiagram)
 library(grid)
 library(cowplot)
 
-out_dir='../processed_data/specific_eQTL/specific_eGene/'
-fig_dir='../figures/specific_eQTL/specific_eGene/'
+out_dir='../processed_data/rpe_specific_eQTL/specific_eGene/'
+fig_dir='../figures/rpe_specific_eQTL/specific_eGene/'
 if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
 

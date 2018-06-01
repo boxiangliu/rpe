@@ -6,10 +6,10 @@ library(doMC)
 registerDoMC(15)
 source('utils/gtex_tissue_info.R')
 
-tissue_fn = '../processed_data/rpe_specific_genes.GTExV7/tissue_kept.txt'
+tissue_fn = '../processed_data/rpe_specific_genes/rpe_specific_genes.GTExV7/tissue_kept.txt'
 GEDi_fn = '../data/eye_disease/GEDi.txt'
 epilepsy_fn = '../data/eye_disease/invitae_epilepsy.txt'
-zscore_dir = '../processed_data/rpe_specific_genes.GTExV7/'
+zscore_dir = '../processed_data/rpe_specific_genes/rpe_specific_genes.GTExV7/'
 fig_dir = '../figures/disease_enrichment/mendelian/GEDi_enrichment/'
 out_dir = '../processed_data/disease_enrichment/mendelian/GEDi_enrichment/'
 if (!dir.exists(fig_dir)) dir.create(fig_dir,recursive=TRUE)
@@ -70,6 +70,7 @@ tissue = c(tissue,'RPE')
 
 GEDi = read_GEDi(GEDi_fn)
 t_stat = calculate_t_stat(zscore_dir,tissue,GEDi)
+t_stat[tissue=='RPE',pval] # 1.554947e-10
 p = plot_t_stat(t_stat)
 out_fn = sprintf('%s/GEDi_enrichment.rds',out_dir)
 saveRDS(p,out_fn)

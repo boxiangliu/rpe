@@ -13,8 +13,8 @@ GTEx_v7_dir = '/mnt/lab_data/montgomery/shared/datasets/gtex/GTEx_Analysis_2016-
 glucose_eGenes_fn = '../processed_data/rasqual/output/glucose/treeQTL/eGenes.txt'
 galactose_eGenes_fn = '../processed_data/rasqual/output/galactose/treeQTL/eGenes.txt'
 gtex_tissue_color_fn = '../data/gtex/gtex_tissue_colors.txt'
-fig_dir = '../figures/specific_eQTL/specific_eGenes_v2/'
-out_dir = '../processed_data/specific_eQTL/specific_eGenes_v2/'
+fig_dir = '../figures/rpe_specific_eQTL/specific_eGenes_v2/'
+out_dir = '../processed_data/rpe_specific_eQTL/specific_eGenes_v2/'
 if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
 
@@ -53,7 +53,7 @@ screen_GTEx = function(gene,GTEx,QVAL){
 	slope = qval[which.min(qval),slope]
 	slope_se = qval[which.min(qval),slope_se]
 	GTEx_eQTL = data.table(gene_id = gene, gene_name, eQTL = !not_eQTL,slope,slope_se,min_qval,tissue)
-	return(GTEx_eQTL)
+	return(unique(GTEx_eQTL))
 }
 
 read_tissue_color = function(gtex_tissue_color_fn){
@@ -111,11 +111,12 @@ GTEx = foreach(fn = fn_list,.combine = rbind)%dopar%{
 	read_GTEx(fn)
 }
 
-# Fine RPE-specific eQTL:
+# Find RPE-specific eQTL (GTEx FDR > 0.1):
 QVAL = 0.1
 GTEx_eQTL = foreach(gene = shared_eQTL[,gene],.combine = rbind)%dopar%{
 	screen_GTEx(gene,GTEx,QVAL)
 }
+
 
 # Make plot data:
 glucose_eGenes = read_TreeQTL(glucose_eGenes_fn)

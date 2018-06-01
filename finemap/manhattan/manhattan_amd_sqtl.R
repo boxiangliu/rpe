@@ -1,10 +1,10 @@
 library(data.table)
 library(cowplot)
 library(ggrepel)
-library(manhattan)
 library(locuscomparer)
 library(leafcutter)
 library(stringr)
+source('finemap/manhattan/utils.R')
 
 clpp_fn='../processed_data/finemap/manhattan/2018-02-27_19-03-38_rpe_amd_updated/Fritsche_sorted_txt_gz_finemap_clpp_status.txt'
 exon_file='/srv/persistent/bliu2/tools/leafcutter/leafcutter/data/gencode19_exons.txt.gz'
@@ -45,23 +45,14 @@ assign_gene=function(exon_file,clusters){
 	return(map[clusters])
 }
 
+cutoff = 0.05
 data=read_finemap(clpp_fn,threshold=1)
 data$clu_name=paste0('chr',gsub('clu:','clu_',gsub('\\.',':',data$clu_name)))
 data$gene_name=assign_gene(exon_file,data$clu_name)
-cutoff = 0.05
 data[,condition:=factor(condition,level=c('Glucose','Galactose'))]
 data[,label:=ifelse(y>cutoff,gene_name,'')]
 data[,chrom:=paste0('chr',chrom)]
-data[condition=='Glucose',y:=-y]
-dummy=data.table(condition=c('Glucose','Galactose'),y=c(-cutoff,cutoff))
+p = plot_manhattan(data,cutoff=cutoff)
 
-p=manhattan(data,build='hg19')+
-	facet_grid(condition~.,scale='free_y')+
-	scale_y_continuous(labels=function(x){abs(x)})+
-	geom_text_repel(aes(label=label))+
-	geom_hline(data=dummy,aes(yintercept=y),color='red',linetype=2)+
-	ylab(paste('CLPP'))
-
-
-saveRDS(list(data,dummy,p),sprintf('%s/manhattan.rds',out_dir))
+saveRDS(list(data,p),sprintf('%s/manhattan.rds',out_dir))
 save_plot(sprintf('%s/manhattan.pdf',fig_dir),p,base_width=8,base_height=4)

@@ -1,9 +1,9 @@
 library(data.table)
 library(cowplot)
 library(ggrepel)
-library(manhattan)
 library(locuscomparer)
-
+library(stringr)
+source('finemap/manhattan/utils.R')
 
 glu_fn='../processed_data/finemap/manhattan/2018-01-26_12-23-26_rpe_23andme/manhattan/23andme_myopia_prepared_txt_gz_glucose_eqtls_txt_gz.txt'
 gal_fn='../processed_data/finemap/manhattan/2018-01-26_12-23-26_rpe_23andme/manhattan/23andme_myopia_prepared_txt_gz_galactose_eqtls_txt_gz.txt'
@@ -11,10 +11,6 @@ fig_dir='../figures/finemap/manhattan/manhattan_myopia/'
 out_dir='../processed_data/finemap/manhattan/manhattan_myopia/'
 if(!dir.exists(fig_dir)){dir.create(fig_dir,recursive=TRUE)}
 if(!dir.exists(out_dir)){dir.create(out_dir,recursive=TRUE)}
-
-read_smr=function(smr_fn){
-	fread(smr_fn)[,list(chrom=ProbeChr,gene_name=Gene,pos=Probe_bp,y=log10(p_SMR),gwas_logp=-log10(p_GWAS),eqtl_logp=-log10(p_eQTL),method='SMR')]
-}
 
 read_finemap=function(fm_fn,threshold=5e-5){
 	if (grepl('clpp_status',fm_fn)) {
@@ -40,23 +36,14 @@ read_finemap=function(fm_fn,threshold=5e-5){
 glu=read_finemap(glu_fn)[,condition:='Glucose']
 gal=read_finemap(gal_fn)[,condition:='Galactose']
 
-
 cutoff = 0.05
 data=rbind(glu,gal)
 data[,condition:=factor(condition,level=c('Glucose','Galactose'))]
 data[,label:=ifelse(y>cutoff,gene_name,'')]
 data[,chrom:=paste0('chr',chrom)]
-data[condition=='Glucose',y:=-y]
-dummy=data.table(condition=c('Glucose','Galactose'),y=c(-cutoff,cutoff))
+p = plot_manhattan(data,cutoff=cutoff)
 
-p=manhattan(data,build='hg19')+
-	facet_grid(condition~.,scale='free_y')+
-	scale_y_continuous(labels=function(x){abs(x)})+
-	geom_text_repel(aes(label=label))+
-	geom_hline(data=dummy,aes(yintercept=y),color='red',linetype=2)+
-	ylab(paste('CLPP'))
-
-saveRDS(list(data,dummy,p),sprintf('%s/manhattan.rds',out_dir))
+saveRDS(list(data,p),sprintf('%s/manhattan.rds',out_dir))
 save_plot(sprintf('%s/manhattan.pdf',fig_dir),p,base_width=8,base_height=4)
 
 

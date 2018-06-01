@@ -39,8 +39,8 @@ gender=fread(gender_file,colClasses=c('character','character'))
 
 dna2rna_fn='../data/meta/dna2rna.txt'
 dna2rna=fread(dna2rna_fn,colClasses=c('character','character'))
-gender=merge(gender,dna2rna,by.x='sample',by.y='DNA')
-gender[,c('sample','RNA'):=list(RNA,NULL)]
+# gender=merge(gender,dna2rna,by.x='sample',by.y='DNA')
+# gender[,c('sample','RNA'):=list(RNA,NULL)]
 
 
 # recode gender (M=0, F=1):
@@ -60,6 +60,9 @@ gender=gender[2,]
 
 # check whether columns are in the same order:
 message('INFO - checking column orders...')
+print(colnames(peer))
+print(colnames(genotype_pc))
+print(colnames(gender))
 
 stopifnot(colnames(peer)%in%colnames(genotype_pc))
 if(!all(colnames(genotype_pc)==colnames(peer))){
