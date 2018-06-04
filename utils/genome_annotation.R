@@ -2,6 +2,7 @@ library(data.table)
 library(stringr)
 
 gencode_fn = '../data/reference/gencode.v19.annotation.gtf'
+mean_expression_fn = '../data/rnaseq/mean_expression.txt'
 
 read_gencode = function(gencode_fn){
 	x = fread(gencode_fn,select=c(1,3,4,5,7,9))
@@ -14,3 +15,7 @@ read_gencode = function(gencode_fn){
 	return(x)
 }
 
+read_mean_expression = function(){
+	x = fread(mean_expression_fn)
+	return(x)
+}
