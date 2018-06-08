@@ -33,6 +33,6 @@ reshape_summary = function(summary){
 }
 
 calculate_percentage = function(x,y){
-	percentage = as.numeric(sprintf('%0.2f',x/y*100))
+	percentage = sprintf('%0.2f%%',x/y*100)
 	return(percentage)
 }

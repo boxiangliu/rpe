@@ -16,6 +16,7 @@ registerDoMC(10)
 library(preprocessCore)
 library(manhattan)
 library(ggrepel)
+source('utils/genome_annotation.R')
 
 # command line arguments: 
 rpkm_file='../processed_data/mds/preprocess.GTExV7/combined_logxp2.rpkm'
@@ -181,6 +182,29 @@ out[,zscore:=(rpkm-mean)/sd]
 gencode=fread('../data/gtex/gencode.v19.genes.v6p.hg19.bed',col.names=c('chr','start','stop','strand','gene_id','gene_name','type'))
 out=merge(out,gencode,by='gene_id')
 
+# Intersect between RPE-specific gene and expressed genes: 
+mean_expression = read_mean_expression()
+out_expressed = merge(out,mean_expression,by=c('gene_id','gene_name'))
+setnames(out_expressed,c('mean_rpkm','mean_count'),c('rpe_mean_rpkm','rpe_mean_count'))
+out_expressed = out_expressed[rpe_mean_rpkm>0.5]
+
+
+# Intersect between RPE-specific genes and known marker genes:
+liao_marker_gene = fread('../data/rpe_marker_genes/liao.txt')
+setnames(liao_marker_gene,c('gene_name','description'))
+liao_marker_gene$liao = 1
+
+strunnikova_marker_gene = fread('../data/rpe_marker_genes/strunnikova.txt')
+strunnikova_marker_gene$strunnikova = 1
+
+out_expressed = merge(out_expressed,unique(liao_marker_gene[,list(gene_name,liao)]),by='gene_name',all.x=TRUE)
+out_expressed = merge(out_expressed,unique(strunnikova_marker_gene[,list(gene_name,strunnikova)]),by='gene_name',all.x=TRUE)
+
+fwrite(out_expressed,sprintf('%s/expressed_genes.RPE.txt',out_dir),sep='\t')
+fwrite(out_expressed[zscore>4,],sprintf('%s/expressed_specific_genes.RPE.txt',out_dir),sep='\t')
+table(out_expressed[zscore>4,type])
+#        lincRNA protein_coding 
+#             30            100
 
 # Plot z-score manhattan plot:
 plot_data = make_plot_data(out,'protein_coding')
