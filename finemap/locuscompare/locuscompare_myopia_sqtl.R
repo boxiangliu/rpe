@@ -1,8 +1,8 @@
 library(data.table)
-detach('package:locuscomparer',unload=TRUE)
-install.packages('/srv/persistent/bliu2/locuscomparer/',source=TRUE,repos=NULL)
 library(locuscomparer)
 library(stringr)
+library(cowplot)
+library(ggrepel)
 
 read_fastQTL = function(in_fn){
 	x = fread(
@@ -27,13 +27,19 @@ if (!dir.exists(fig_dir)) dir.create(fig_dir,recursive=TRUE)
 
 glucose_list = c(
 	RDH5 = 'chr12:56115278:56117670:clu_1202',
-	TCP11L2 = 'chr12:106706212:106708136:clu_1434',
-	YTHDC1 = 'chr4:69197915:69199026:clu_11700',
-	RNF13 = 'chr3:149532118:149563798:clu_12913'
+	# TCP11L2 = 'chr12:106706212:106708136:clu_1434',
+	# YTHDC1 = 'chr4:69197915:69199026:clu_11700',
+	# RNF13 = 'chr3:149532118:149563798:clu_12913',
+	TSPAN10 = 'chr17:79612655:79614962:clu_4491'
 	)
 galactose_list = c(
 	RDH5 = 'chr12:56115278:56117670:clu_1247',
-	RWDD2A = 'chr6:83904371:83904914:clu_10829'
+	# RWDD2A = 'chr6:83904371:83904914:clu_10829',
+	TAGLN = 'chr11:117070545:117073718:clu_2714',
+	ANKRD9 = 'chr14:102974886:102975866:clu_6681',
+	SCAMP3 = 'chr1:155230450:155231877:clu_16149',
+	FBXO7 = 'chr22:32883815:32889092:clu_8550',
+	PPIL3 = 'chr2:201741760:201742220:clu_14556'
 	)
 
 
@@ -80,4 +86,3 @@ for (i in seq_along(galactose_list)){
 		base_height = 4,
 		base_width = 8)
 }
-

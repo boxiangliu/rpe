@@ -225,11 +225,11 @@ get_ase_plot_data = function(top_tissue_specific_eqtl){
 		message(gene_id)
 		message(gene_name)
 
-		fn = find_rasqual_fn(gene_name,glucose_dir)
+		fn = find_rasqual_fn(gene_id,gene_name,glucose_dir)
 		rasqual = read_rasqual(fn)
 		glucose_ase = extract_ase(rasqual)
 
-		fn = find_rasqual_fn(gene_name,galactose_dir)
+		fn = find_rasqual_fn(gene_id,gene_name,galactose_dir)
 		rasqual = read_rasqual(fn)
 		galactose_ase = extract_ase(rasqual)
 
@@ -238,6 +238,7 @@ get_ase_plot_data = function(top_tissue_specific_eqtl){
 		return(ase)
 	}
 	plot_data[,gene_name := factor(gene_name,unique(gene_name))]
+	plot_data[,treatment:=factor(treatment,levels=c('Glucose','Galactose'))]
 	return(plot_data)
 }
 
@@ -350,5 +351,9 @@ plot_data=get_ase_plot_data(top_shared_eqtl)
 shared_ase_plot = plot_ase(plot_data)
 
 p = plot_grid(galactose_ase_plot,glucose_ase_plot,shared_ase_plot,nrow=3,align='v',labels=c('A','B','C'))
-fig_fn = sprintf('%s/ase/ase_plot.pdf',fig_dir)
+fig_fn = sprintf('%s/ase/ase_plot_uc.pdf',fig_dir)
+save_plot(fig_fn,p,base_height = 8, base_width = 8)
+
+p = plot_grid(galactose_ase_plot,glucose_ase_plot,shared_ase_plot,nrow=3,align='v',labels=c('a','b','c'))
+fig_fn = sprintf('%s/ase/ase_plot_lc.pdf',fig_dir)
 save_plot(fig_fn,p,base_height = 8, base_width = 8)

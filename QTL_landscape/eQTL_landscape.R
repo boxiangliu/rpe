@@ -7,6 +7,7 @@ library(manhattan)
 library(cowplot)
 library(ggrepel)
 library(RCircos)
+source('utils/genome_annotation.R')
 
 glucose_dir = '../processed_data/rasqual/output/glucose/joint/'
 galactose_dir = '../processed_data/rasqual/output/galactose/joint/'
@@ -225,13 +226,45 @@ RCircos.Vertical.Line.Plot <- function(line.data=NULL, track.num=NULL,
 
 setup_circos = function(tracks.inside, tracks.outside, chr.exclude = NULL){
 	data(UCSC.HG19.Human.CytoBandIdeogram)
-	cyto.info <- UCSC.HG19.Human.CytoBandIdeogram
-	RCircos.Set.Core.Components(cyto.info, chr.exclude,tracks.inside, tracks.outside)
+	cyto.info = UCSC.HG19.Human.CytoBandIdeogram
+	RCircos.Set.Core.Components(cyto.info = cyto.info, chr.exclude = chr.exclude, tracks.inside = tracks.inside, tracks.outside = tracks.outside)
+}
+
+RCircos.Label.Chromosome.Names = function(chr.name.pos = NULL){
+	RCircos.Par <- RCircos.Get.Plot.Parameters()
+	if (is.null(chr.name.pos)) {
+		chr.name.pos <- RCircos.Par$chr.name.pos
+	}
+	else {
+		if (chr.name.pos < RCircos.Par$track.in.start) 
+			stop("Chromosome name positions overlap with inside track.\n")
+		if (chr.name.pos > RCircos.Par$track.out.start) 
+			message("May not plot data tracks outside of chromosomes.\n")
+	}
+	RCircos.Cyto <- RCircos.Get.Plot.Ideogram()
+	RCircos.Pos <- RCircos.Get.Plot.Positions()
+	chroms <- unique(RCircos.Cyto$Chromosome)
+	rightSide <- nrow(RCircos.Pos)/2
+	for (aChr in seq_len(length(chroms))) {
+		chrRows <- which(RCircos.Cyto$Chromosome == chroms[aChr])
+		chrStart <- min(RCircos.Cyto$StartPoint[chrRows])
+		chrEnd <- max(RCircos.Cyto$EndPoint[chrRows])
+		mid <- round((chrEnd - chrStart + 1)/2, digits = 0) + 
+			chrStart
+		chrName <- sub(pattern = "chr", replacement = "", chroms[aChr])
+		text(RCircos.Pos[mid, 1] * chr.name.pos, 
+			RCircos.Pos[mid, 2] * chr.name.pos, label = chrName, 
+			pos = ifelse(mid <= rightSide, 4, 2), srt = RCircos.Pos$degree[mid])
+	}
 }
 
 plot_circos = function(glucose,galactose,rpe_specific_eGenes){
+
 	RCircos.Set.Plot.Area()
-	RCircos.Chromosome.Ideogram.Plot()
+	RCircos.Highligh.Chromosome.Ideogram(highlight.pos = 1.47)
+	RCircos.Label.Chromosome.Names(chr.name.pos = 1.49)
+	# RCircos.Chromosome.Ideogram.Plot()
+
 	data = merge(
 		glucose[,list(gene_id, chr, start = pos, end = pos, gene_name, glucose = eQTL)],
 		galactose[,list(gene_id,galactose = eQTL)],
@@ -240,12 +273,11 @@ plot_circos = function(glucose,galactose,rpe_specific_eGenes){
 	glucose_line = data[glucose == TRUE & shared == FALSE, list(chr,start,end,glucose)]
 	galactose_line = data[galactose == TRUE & shared == FALSE, list(chr,start,end,galactose)]
 	shared_line = data[shared == TRUE, list(chr,start,end,shared)]
-	rpe_specific_line = data[gene_id %in% rpe_specific_eGenes$gene,list(chr,start,end,gene_name)]
+	rpe_specific_line = data[gene_id %in% rpe_specific_eGenes$gene_id,list(chr,start,end,gene_name)]
 	RCircos.Vertical.Line.Plot(shared_line, track.num=1, side="in",color='black')
-	RCircos.Vertical.Line.Plot(glucose_line, track.num=2, side="in",color='red')
-	RCircos.Vertical.Line.Plot(galactose_line, track.num=3, side="in",color='green')
-	RCircos.Vertical.Line.Plot(rpe_specific_line, track.num=4, side="in",color='blue')
-	# RCircos.Gene.Connector.Plot(rpe_specific_line,track.num=5, side='in')
+	RCircos.Vertical.Line.Plot(glucose_line, track.num=2, side="in",color='#F87660')
+	RCircos.Vertical.Line.Plot(galactose_line, track.num=3, side="in",color='#619CFF')
+	RCircos.Vertical.Line.Plot(rpe_specific_line, track.num=4, side="in",color='#C77CFF')
 	setDF(rpe_specific_line)
 	RCircos.Gene.Name.Plot(gene.data = rpe_specific_line,name.col=4,track.num=5, side='in')
 }
@@ -336,12 +368,18 @@ save_plot(fig_fn,p,base_width = 6, base_height = 6)
 #-------------#
 # cicros plot #
 #-------------#
-rpe_specific_eGenes_fn = '../processed_data/specific_eQTL/specific_eGenes_v2//rpe_specific_eGenes.txt'
+rpe_specific_eGenes_fn = '../processed_data/rpe_specific_eQTL/specific_eGenes_v2//rpe_specific_eGenes.txt'
 rpe_specific_eGenes = fread(rpe_specific_eGenes_fn)
-num_shared_eQTL = nrow(glucose[eQTL == TRUE&treatment_specific==FALSE])
-num_glucose_eQTL = nrow(glucose[treatment_specific==TRUE])
-num_galactose_eQTL = nrow(galactose[treatment_specific==TRUE])
-num_rpe_specific_eQTL = nrow(rpe_specific_eGenes)
+
+mean_expression = read_mean_expression()
+gene_annotation = read_gencode()
+mean_expression = merge(mean_expression,gene_annotation,by=c('gene_id','gene_name'))
+expressed_genes = mean_expression[mean_rpkm>0.5,]
+
+num_shared_eQTL = nrow(glucose[eQTL == TRUE & treatment_specific==FALSE & gene_id %in% expressed_genes$gene_id])
+num_glucose_eQTL = nrow(glucose[treatment_specific==TRUE & gene_id %in% expressed_genes$gene_id])
+num_galactose_eQTL = nrow(galactose[treatment_specific==TRUE & gene_id %in% expressed_genes$gene_id])
+num_rpe_specific_eQTL = length(unique(rpe_specific_eGenes$gene_id))
 legend = c(paste0('Shared = ',num_shared_eQTL),
 	paste0('Glucose = ',num_glucose_eQTL),
 	paste0('Galactose = ',num_galactose_eQTL),
@@ -351,5 +389,5 @@ setup_circos(tracks.inside = 6, tracks.outside = 0, chr.exclude = c('chrX','chrY
 fig_fn = sprintf('%s/circos.pdf',fig_dir)
 pdf(fig_fn,width = 6,height=6)
 plot_circos(glucose,galactose,rpe_specific_eGenes)
-legend('center',bty = 'n', legend = legend,col = c('black','red','green','blue'),pch = 19)
+legend(x = -0.7,y=0.5,bty = 'n', legend = legend,col = c('black','#F87660','#619CFF','#C77CFF'),pch = 19)
 dev.off()

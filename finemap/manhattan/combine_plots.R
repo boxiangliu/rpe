@@ -14,7 +14,11 @@ amd_sqtl = readRDS(amd_sqtl_fn)
 amd_sqtl_p = amd_sqtl[[2]]
 
 p = plot_grid(amd_eqtl_p+ggtitle('eQTL'),amd_sqtl_p+ggtitle('sQTL'),nrow=2,labels = c('A','B'))
-fig_fn = sprintf('%s/AMD_manhattan.pdf',fig_dir)
+fig_fn = sprintf('%s/AMD_manhattan_uc.pdf',fig_dir)
+save_plot(fig_fn,p,base_height=8,base_width=8)
+
+p = plot_grid(amd_eqtl_p+ggtitle('eQTL'),amd_sqtl_p+ggtitle('sQTL'),nrow=2,labels = c('a','b'))
+fig_fn = sprintf('%s/AMD_manhattan_lc.pdf',fig_dir)
 save_plot(fig_fn,p,base_height=8,base_width=8)
 
 
@@ -25,5 +29,9 @@ myopia_sqtl = readRDS(myopia_sqtl_fn)
 myopia_sqtl_p = myopia_sqtl[[2]]
 
 p = plot_grid(myopia_eqtl_p+ggtitle('eQTL'),myopia_sqtl_p+ggtitle('sQTL'),nrow=2,labels = c('A','B'))
-fig_fn = sprintf('%s/myopia_manhattan.pdf',fig_dir)
+fig_fn = sprintf('%s/myopia_manhattan_uc.pdf',fig_dir)
+save_plot(fig_fn,p,base_height=8,base_width=8)
+
+p = plot_grid(myopia_eqtl_p+ggtitle('eQTL'),myopia_sqtl_p+ggtitle('sQTL'),nrow=2,labels = c('a','b'))
+fig_fn = sprintf('%s/myopia_manhattan_lc.pdf',fig_dir)
 save_plot(fig_fn,p,base_height=8,base_width=8)

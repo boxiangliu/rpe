@@ -3,8 +3,6 @@ library(cowplot)
 library(manhattan)
 library(ggrepel)
 library(stringr)
-detach('package:locuscomparer',unload=TRUE)
-devtools::install_github('boxiangliu/locuscomparer')
 library(locuscomparer)
 
 #-----------#
@@ -16,10 +14,11 @@ myopia_eQTL_manhattan_rds = '../processed_data/finemap/manhattan/manhattan_myopi
 myopia_sQTL_manhattan_rds = '../processed_data/finemap/manhattan/manhattan_myopia_sqtl/manhattan.rds'
 RDH5_eQTL_fn = '../processed_data/rasqual/output/glucose/joint/chr12/ENSG00000135437.5_RDH5.txt'
 chr12_sQTL_fn = '../processed_data/sqtl/fastQTL/nominal/glucose/chr12.nominal.txt.gz'
+sashimi_fn = '../processed_data/sqtl/visualization/leafviz//rdh5.rda'
 
 fig_dir = '../figures/figure5/'
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
-CUTOFF = 0.05
+CUTOFF = 0.01
 #-----------#
 # Functions #
 #-----------#
@@ -49,16 +48,16 @@ make_manhattan_data = function(eQTL_rds,sQTL_rds,cutoff = CUTOFF){
 
 plot_manhattan = function(data,label, cutoff = CUTOFF){
 	dummy=data.table(type=c('eQTL','sQTL'),y=c(cutoff,cutoff))
-	text_data = data.frame(cumulative_pos = 5e8, y = 0.4, color = 'black', type = factor('eQTL',levels = c('eQTL','sQTL')))
+	text_data = data.frame(cumulative_pos = 3e8, y = 0.45, color = 'black', shape = 16, fill = 'black', type = factor('eQTL',levels = c('eQTL','sQTL')))
 	p=manhattan(data,build='hg19')+
 		facet_grid(type~.,scale='free_y')+
-		scale_y_sqrt(breaks = c(0.05,seq(0.1,0.5,0.1)))+
-		geom_text_repel(aes(label=label),color='black')+
+		scale_y_sqrt(breaks = c(0.01,seq(0.1,0.5,0.1)), limits=c(0,0.5))+
+		geom_text_repel(aes(label=label),color='black', ylim  = c(0.1,0.7), fontface = ifelse(data$label == 'RDH5','bold','plain'))+
 		geom_hline(data=dummy,aes(yintercept=y),color='red',linetype=2)+
 		ylab(paste('Colocalization probability')) +
 		theme_bw() + 
 		theme(panel.grid = element_blank(), panel.border = element_rect(size = 1), strip.background = element_rect(color = 'black',fill = 'white', size = 1)) + 
-		geom_text(data = text_data, label = label, size = 5)
+		geom_text(data = text_data, label = label, size = 5, fontface= 'bold')
 	return(p)
 }
 
@@ -91,7 +90,6 @@ extract_chr_pos = function(x){
 	return(list(chr,pos))
 }
 
-
 read_amd_gwas = function(){
 	gwas = fread('../data/gwas/Fritsche_2015_AdvancedAMD.txt')
 	gwas[,Chrom:=paste0('chr',Chrom)]
@@ -111,10 +109,14 @@ read_myopia_gwas = function(){
 
 # Manhattan:
 amd_manhattan_data = make_manhattan_data(amd_eQTL_manhattan_rds,amd_sQTL_manhattan_rds)
+set.seed(102)
 amd_manhattan_plot = plot_manhattan(amd_manhattan_data,label='AMD') 
 
+
 myopia_manhattan_data = make_manhattan_data(myopia_eQTL_manhattan_rds,myopia_sQTL_manhattan_rds)
-myopia_manhattan_plot = plot_manhattan(myopia_manhattan_data, label = 'Myopia')
+set.seed(42)
+myopia_manhattan_plot = plot_manhattan(myopia_manhattan_data, label = 'Myopia') 
+
 
 # Conservation:
 conservation = plot_conservation()
@@ -132,6 +134,7 @@ eQTL_amd_locuscompare = main(
 	in_fn2 = RDH5_eQTL_into_amd[,list(rsid,pval)],
 	title1 = 'AMD',
 	title2 = 'eQTL',
+	snp = 'rs3138141',
 	vcf_fn = '/srv/persistent/bliu2/shared/1000genomes/phase3v5a/ALL.chr12.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz',
 	combine = FALSE,
 	legend = FALSE)
@@ -143,6 +146,7 @@ sQTL_amd_locuscompare = main(
 	in_fn2 = RDH5_sQTL_into_amd[,list(rsid,pval)],
 	title1 = 'AMD',
 	title2 = 'sQTL',
+	snp = 'rs3138141',
 	vcf_fn = '/srv/persistent/bliu2/shared/1000genomes/phase3v5a/ALL.chr12.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz',
 	combine = FALSE,
 	legend = FALSE)
@@ -154,6 +158,7 @@ eQTL_myopia_locuscompare = main(
 	in_fn2 = RDH5_eQTL_into_myopia[,list(rsid,pval)],
 	title1 = 'Myopia',
 	title2 = 'eQTL',
+	snp = 'rs3138141',
 	vcf_fn = '/srv/persistent/bliu2/shared/1000genomes/phase3v5a/ALL.chr12.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz',
 	combine = FALSE,
 	legend = FALSE)
@@ -165,20 +170,38 @@ sQTL_myopia_locuscompare = main(
 	in_fn2 = RDH5_sQTL_into_myopia[,list(rsid,pval)],
 	title1 = 'Myopia',
 	title2 = 'sQTL',
+	snp = 'rs3138141',
 	vcf_fn = '/srv/persistent/bliu2/shared/1000genomes/phase3v5a/ALL.chr12.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz',
 	combine = FALSE,
 	legend = FALSE)
 sQTL_myopia_locuscompare = sQTL_myopia_locuscompare$locuscompare + theme(axis.title = element_text(size=11))
+
+
+# Make sashimi plot:
+sashimi_plots = readRDS(sashimi_fn)
+sashimi_plots[[1]] = sashimi_plots[[1]] + theme(plot.margin = margin(0,5.5,0,30,'pt'),axis.title.y=element_text(size=11))
+sashimi_plots[[2]] = sashimi_plots[[2]] + theme(plot.margin = margin(0,5.5,0,30,'pt'),axis.title.y=element_text(size=11))
+sashimi_plots[[2]] = sashimi_plots[[2]] + annotate('text',x=18,y=-4,label='p-value < 2.01*x*10^{-5}',parse=TRUE)
+
 # save.image('figure5/figure5.rda')
 load('figure5/figure5.rda')
 
-
-
 # Make Figure 5:
+sashimi = plot_grid(sashimi_plots[[1]],sashimi_plots[[2]],nrow=2,labels=c('G',''))
 top_right = plot_grid(eQTL_amd_locuscompare,sQTL_amd_locuscompare,nrow=2,align='v',labels=c('B','C'))
 top = plot_grid(amd_manhattan_plot,top_right,nrow=1,align='h',labels = c('A',''),rel_widths = c(3,1))
 bottom_right = plot_grid(eQTL_myopia_locuscompare,sQTL_myopia_locuscompare,nrow=2,align='v',labels=c('E','F'))
-bottom = plot_grid(myopia_manhattan_plot,bottom_right,nrow=1,align = 'h',labels = c('C',''),rel_widths = c(3,1))
-entire = plot_grid(top,bottom,nrow=2,align='v',labels = '')
-fig_fn = sprintf('%s/figure5.pdf',fig_dir)
-save_plot(fig_fn,entire,base_width=8,base_height=8)
+bottom = plot_grid(myopia_manhattan_plot,bottom_right,nrow=1,align = 'h',labels = c('D',''),rel_widths = c(3,1))
+entire = plot_grid(top,bottom,sashimi,nrow=3,rel_heights = c(2,2,1),align='v',labels = '')
+fig_fn = sprintf('%s/figure5_uc.pdf',fig_dir)
+save_plot(fig_fn,entire,base_width=8,base_height=10)
+
+sashimi = plot_grid(sashimi_plots[[1]],sashimi_plots[[2]],nrow=2,labels=c('g',''))
+top_right = plot_grid(eQTL_amd_locuscompare,sQTL_amd_locuscompare,nrow=2,align='v',labels=c('b','c'))
+top = plot_grid(amd_manhattan_plot,top_right,nrow=1,align='h',labels = c('a',''),rel_widths = c(3,1))
+bottom_right = plot_grid(eQTL_myopia_locuscompare,sQTL_myopia_locuscompare,nrow=2,align='v',labels=c('e','f'))
+bottom = plot_grid(myopia_manhattan_plot,bottom_right,nrow=1,align = 'h',labels = c('d',''),rel_widths = c(3,1))
+entire = plot_grid(top,bottom,sashimi,nrow=3,rel_heights = c(2,2,1),align='v',labels = '')
+fig_fn = sprintf('%s/figure5_lc.pdf',fig_dir)
+save_plot(fig_fn,entire,base_width=8,base_height=10)
+

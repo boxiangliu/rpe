@@ -15,5 +15,9 @@ p3 = readRDS('../processed_data/disease_enrichment/ld_score_regression/plot_heri
 p3 = p3 + ylab(expression(-log[10]*(p-value))) + ggtitle('Myopia')
 
 p = plot_grid(p1,p2,p3,labels=c('A','B','C'),nrow=1)
-fig_fn = sprintf('%s/figure3.pdf',fig_dir)
+fig_fn = sprintf('%s/figure3_uc.pdf',fig_dir)
+save_plot(fig_fn,p,base_height=6,base_width=11)
+
+p = plot_grid(p1,p2,p3,labels=c('a','b','c'),nrow=1)
+fig_fn = sprintf('%s/figure3_lc.pdf',fig_dir)
 save_plot(fig_fn,p,base_height=6,base_width=11)

@@ -6,7 +6,7 @@ read_tissue_color = function(gtex_tissue_color_fn){
 	gtex_tissue_color[,tissue_color_hex:=paste0('#',tissue_color_hex)]
 	tissue_color = gtex_tissue_color$tissue_color_hex
 	names(tissue_color) = gtex_tissue_color$tissue_site_detail_id
-	tissue_color = c(tissue_color,c(`RPE - glucose` = '#FF0000', `RPE - galactose` = '#00FF00',RPE = '#FF0000'))
+	tissue_color = c(tissue_color,c(`RPE - glucose` = '#F87660', `RPE - galactose` = '#619CFF',RPE = '#F87660'))
 	return(tissue_color)
 }
 

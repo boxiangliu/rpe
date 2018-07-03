@@ -27,7 +27,7 @@ remove_multiallelic_sites = function(row_data,dosage){
 }
 
 update_sample_names = function(old,old_to_new_fn = '../data/meta/dna2rna.txt'){
-	old_to_new = fread(old_to_new_fn,colClasses = c('character','character'))
+	old_to_new = fread(old_to_new_fn,colClasses = c('character','character','character'))[,c(1,3)]
 	setnames(old_to_new, c('old','new'))
 	map = old_to_new$new
 	names(map) = old_to_new$old
@@ -54,6 +54,7 @@ row_data = chr1_dosage[[1]]
 chr1_dosage = chr1_dosage[[2]]
 colnames(chr1_dosage) = update_sample_names(colnames(chr1_dosage))
 chr1_dosage = chr1_dosage[,order(colnames(chr1_dosage)),with=FALSE]
+chr1_dosage = chr1_dosage[,match(as.character(1:24),colnames(chr1_dosage)),with=FALSE]
 cor = calculate_dosage_correlation(chr1_dosage)
 
 fig_fn = sprintf('%s/genotype_correlation.pdf',fig_dir)

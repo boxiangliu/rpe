@@ -10,3 +10,4 @@ eQTL = fread(eQTL_fn)
 setnames(eQTL,'gene','gene_id')
 eQTL = merge(eQTL,gene_annotation[,list(gene_id,gene_name,gene_type)],by='gene_id')
 GEDi_eQTL = eQTL[gene_name %in% GEDi$gene_name]
+GEDi_eQTL

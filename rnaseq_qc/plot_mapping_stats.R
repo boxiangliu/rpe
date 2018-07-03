@@ -29,11 +29,13 @@ plot_STAR_mapping_stats = function(x,xlabel){
 	p = ggplot(x, aes(x = sample, y = value, fill = condition)) + 
 		geom_bar(stat='identity',position ='dodge')+
 		ylab(xlabel) + 
-		xlab('') + 
+		xlab('Samples') + 
 		scale_x_discrete(breaks = x$sample, label = str_replace(x$sample,'_(glucose|galactose)','')) + 
+		theme(axis.text.y=element_blank(),axis.ticks.y=element_blank()) + 
 		coord_flip() + 
 		scale_y_log10() + 
 		scale_fill_discrete(name = 'Treatment')
+
 	return(p)
 }
 
@@ -71,6 +73,10 @@ sum(as.numeric(uniquely_mapped$value))
 p2 = plot_STAR_mapping_stats(uniquely_mapped,'Uniquely mapped reads')
 
 
+p = plot_grid(p1,p2,nrow=1,rel_widths=c(1,1.4),labels = c('a','b'))
+fig_fn = sprintf('%s/mapping_stats_lc.pdf',fig_dir)
+save_plot(fig_fn,p,base_width = 8,base_height=7)
+
 p = plot_grid(p1,p2,nrow=1,rel_widths=c(1,1.4),labels = c('A','B'))
-fig_fn = sprintf('%s/mapping_stats.pdf',fig_dir)
+fig_fn = sprintf('%s/mapping_stats_uc.pdf',fig_dir)
 save_plot(fig_fn,p,base_width = 8,base_height=7)

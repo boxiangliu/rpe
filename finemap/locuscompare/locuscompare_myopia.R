@@ -1,8 +1,8 @@
 library(data.table)
-detach('package:locuscomparer',unload=TRUE)
-install.packages('/srv/persistent/bliu2/locuscomparer/',source=TRUE,repos=NULL)
 library(locuscomparer)
 library(stringr)
+library(cowplot)
+library(ggrepel)
 
 read_rasqual = function(in_fn){
 	x = fread(
@@ -22,11 +22,17 @@ glucose_list = c(
 	'../processed_data/rasqual/output/glucose/joint/chr12/ENSG00000135437.5_RDH5.txt',
 	'../processed_data/rasqual/output/glucose/joint/chr8/ENSG00000120885.15_CLU.txt',
 	'../processed_data/rasqual/output/glucose/joint/chr15/ENSG00000138613.9_APH1B.txt',
-	'../processed_data/rasqual/output/glucose/joint/chr19/ENSG00000248098.6_BCKDHA.txt'
+	# '../processed_data/rasqual/output/glucose/joint/chr19/ENSG00000248098.6_BCKDHA.txt',
+	'../processed_data/rasqual/output/glucose/joint/chr19/ENSG00000104805.11_NUCB1.txt',
+	'../processed_data/rasqual/output/glucose/joint/chr14/ENSG00000187097.8_ENTPD5.txt',
+	'../processed_data/rasqual/output/glucose/joint/chr2/ENSG00000240344.4_PPIL3.txt',
+	'../processed_data/rasqual/output/glucose/joint/chr21/ENSG00000157557.7_ETS2.txt'
 	)
+
 galactose_list = c(
 	'../processed_data/rasqual/output/galactose/joint/chr12/ENSG00000135437.5_RDH5.txt',
-	'../processed_data/rasqual/output/galactose/joint/chr8/ENSG00000120885.15_CLU.txt'
+	'../processed_data/rasqual/output/galactose/joint/chr8/ENSG00000120885.15_CLU.txt',
+	'../processed_data/rasqual/output/galactose/joint/chr12/ENSG00000172572.6_PDE3A.txt'
 	)
 
 

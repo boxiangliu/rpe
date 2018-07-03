@@ -41,4 +41,7 @@ sig = count_significant_sqtl(galactose_dir)
 p2 = plot_siginificant_sqtl(sig,'Galactose')
 
 p = plot_grid(p1,p2,labels=c('A','B'))
-save_plot(sprintf('%s/sqtl_vs_cov.pdf',fig_dir),p,base_width=8)
+save_plot(sprintf('%s/sqtl_vs_cov_uc.pdf',fig_dir),p,base_width=8)
+
+p = plot_grid(p1,p2,labels=c('a','b'))
+save_plot(sprintf('%s/sqtl_vs_cov_lc.pdf',fig_dir),p,base_width=8)

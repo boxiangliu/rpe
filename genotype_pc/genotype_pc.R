@@ -11,6 +11,7 @@ rpe_dir='../processed_data/genotype_pc/preprocess_vcf/rpe'
 okg_dir='../processed_data/genotype_pc/preprocess_vcf/1kg'
 out_dir='../processed_data/genotype_pc/genotype_pc/'
 fig_dir='../figures/genotype_pc/genotype_pc/'
+meta_fn='../data/meta/dna2rna.txt'
 if(!dir.exists(out_dir)) dir.create(out_dir)
 if(!dir.exists(fig_dir)) dir.create(fig_dir,recursive=T)
 
@@ -22,6 +23,7 @@ plot_screeplot = function(pc,top = 10){
 	ggplot(data[1:top], aes(pc, proportion)) + 
 		geom_point() + 
 		geom_line() + 
+		xlab('PC') + 
 		scale_x_continuous(breaks = 1:top, labels = 1:top)
 }
 
@@ -171,6 +173,10 @@ panel=fread('../processed_data/genotype_pc/1kg_samples/4_sample_each_pop.panel')
 # Plot the first few PCs: 
 to_plot=as.data.frame(pc$x[,1:10])
 to_plot$sample=rownames(to_plot)
+
+meta = fread(meta_fn,header=TRUE,colClasses = c('character','character','integer'))
+to_plot$sample[1:23] = meta$NAME[match(to_plot$sample[1:23],meta$RNA)]
+
 to_plot=merge(to_plot,panel,by='sample',all=T,sort=FALSE)
 setDT(to_plot)
 to_plot[,super_pop:=ifelse(is.na(super_pop),'unknown',super_pop)]

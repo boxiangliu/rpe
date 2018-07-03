@@ -1,6 +1,4 @@
 library(data.table)
-detach('package:locuscomparer',unload=TRUE)
-install.packages('/srv/persistent/bliu2/locuscomparer/',source=TRUE,repos=NULL)
 library(locuscomparer)
 library(stringr)
 library(cowplot)
@@ -19,6 +17,7 @@ read_rasqual = function(in_fn){
 
 fig_dir = '../figures/finemap/locuscompare/locuscompare_amd/'
 if (!dir.exists(fig_dir)) dir.create(fig_dir,recursive=TRUE)
+
 glucose_list = c(
 	'../processed_data/rasqual/output/glucose/joint/chr12/ENSG00000135437.5_RDH5.txt',
 	'../processed_data/rasqual/output/glucose/joint/chr7/ENSG00000059378.8_PARP12.txt',
@@ -28,7 +27,8 @@ glucose_list = c(
 galactose_list = c(
 	'../processed_data/rasqual/output/galactose/joint/chr12/ENSG00000135437.5_RDH5.txt',
 	'../processed_data/rasqual/output/galactose/joint/chr7/ENSG00000059378.8_PARP12.txt',
-	'../processed_data/rasqual/output/galactose/joint/chr18/ENSG00000082397.11_EPB41L3.txt'
+	'../processed_data/rasqual/output/galactose/joint/chr18/ENSG00000082397.11_EPB41L3.txt',
+	'../processed_data/rasqual/output/galactose/joint/chr15/ENSG00000140522.7_RLBP1.txt'
 	)
 
 

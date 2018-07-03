@@ -11,7 +11,9 @@ gene_annotation = read_gencode(gencode_fn)
 mean_expression = read_mean_expression()
 expressed_gene = mean_expression[mean_rpkm > 0.5, gene_id]
 fig_dir = '../figures/diff_expression/plot_manhattan/'
+out_dir = '../processed_data/diff_expression/plot_manhattan/'
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
+if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
 
 read_deseq = function(deseq_fn){
 	results = read.table(deseq_fn, header = T, na.strings = "NA")
@@ -36,8 +38,8 @@ make_plot_data = function(results_annotated,cutoff=1e-5,limit=1e-16){
 	manhattan_data[,shape:=16]
 	manhattan_data[,color:=ifelse(padj<cutoff&log2FoldChange>0&chrom%in%paste0('chr',seq(1,21,2)),'red',NA)]
 	manhattan_data[,color:=ifelse(padj<cutoff&log2FoldChange>0&chrom%in%paste0('chr',seq(2,22,2)),'pink',color)]
-	manhattan_data[,color:=ifelse(padj<cutoff&log2FoldChange<0&chrom%in%paste0('chr',seq(1,21,2)),'green',color)]
-	manhattan_data[,color:=ifelse(padj<cutoff&log2FoldChange<0&chrom%in%paste0('chr',seq(2,22,2)),'greenyellow',color)]
+	manhattan_data[,color:=ifelse(padj<cutoff&log2FoldChange<0&chrom%in%paste0('chr',seq(1,21,2)),'blue',color)]
+	manhattan_data[,color:=ifelse(padj<cutoff&log2FoldChange<0&chrom%in%paste0('chr',seq(2,22,2)),'turquoise',color)]
 	manhattan_data[,fill:=color]
 	manhattan_data[,y := -log10(padj) * sign(log2FoldChange)]
 	setorder(manhattan_data,chrom,pos)
@@ -46,14 +48,13 @@ make_plot_data = function(results_annotated,cutoff=1e-5,limit=1e-16){
 }
 
 plot_manhattan = function(plot_data,top=20){
-	color_map = c('black','grey','red','pink','green','greenyellow')
-	names(color_map) = color_map
+	color_map = c(black='black',grey='grey',red='#F87660',pink='#ffbbaf',blue='#619CFF',turquoise='#bcd5ff')
 	text_data = plot_data[which(plot_data$rank<=top),]
 	set.seed(142)
 
 	p = manhattan(plot_data) + 
-		scale_color_manual(name='',values = color_map,breaks = c('red','green'),labels=c('Glucose upregulation','Galactose upregulation')) + 
-		theme(legend.position = c(0.99,1.05),legend.justification=c('right','top'),legend.text=element_text(size=10)) +
+		scale_color_manual(name='',values = color_map,breaks = c('red','blue'),labels=c('Glucose upregulation','Galactose upregulation')) + 
+		theme(legend.position = c(0.99,1.1),legend.justification=c('right','top'),legend.text=element_text(size=10)) +
 		geom_text_repel(
 			data = text_data,
 			aes(label = gene_name),
@@ -74,5 +75,7 @@ plot_data = make_plot_data(results_annotated_pc,cutoff = 1e-3)
 p = plot_manhattan(plot_data,top=20)
 fig_fn = sprintf('%s/deseq_manhattan.pdf',fig_dir)
 ggsave(fig_fn,p,height=3,width=8)
+out_fn = sprintf('%s/deseq_manhattan.rds',out_dir)
+saveRDS(p,out_fn)
 
 

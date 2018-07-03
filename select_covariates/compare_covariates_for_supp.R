@@ -214,5 +214,10 @@ p2=ggplot(sig,aes(cov,n))+
 
 
 p = plot_grid(p1,p2,labels = c('A','B'), align = 'h', nrow = 1)
-fig_fn = sprintf('%s/eAssociation_vs_cov.pdf',fig_dir)
+fig_fn = sprintf('%s/eAssociation_vs_cov_uc.pdf',fig_dir)
+save_plot(fig_fn,p,base_width = 8, base_height = 4)
+
+
+p = plot_grid(p1,p2,labels = c('a','b'), align = 'h', nrow = 1)
+fig_fn = sprintf('%s/eAssociation_vs_cov_lc.pdf',fig_dir)
 save_plot(fig_fn,p,base_width = 8, base_height = 4)

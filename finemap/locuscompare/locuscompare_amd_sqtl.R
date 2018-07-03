@@ -1,6 +1,8 @@
 library(data.table)
 library(locuscomparer)
 library(stringr)
+library(cowplot)
+library(ggrepel)
 
 read_fastQTL = function(in_fn){
 	x = fread(
@@ -24,9 +26,13 @@ fig_dir = '../figures/finemap/locuscompare/locuscompare_amd_sqtl/'
 if (!dir.exists(fig_dir)) dir.create(fig_dir,recursive=TRUE)
 
 glucose_list = c(
-	RDH5 = 'chr12:56115278:56117670:clu_1202'
+	C11orf24 = 'chr11:68034865:68035522:clu_2398',
+	RDH5 = 'chr12:56115278:56117670:clu_1202',
+	TSPAN10 = 'chr17:79612655:79614962:clu_4491'
 	)
 galactose_list = c(
+	TAGLN = 'chr11:117070545:117073718:clu_2714',
+	RDH5 = 'chr12:56115278:56117670:clu_1247'
 	)
 
 

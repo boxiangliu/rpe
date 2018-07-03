@@ -88,6 +88,12 @@ bash sqtl/fastQTL/run_fastQTL.sh
 # Quality control:
 Rscript sqtl/fastQTL/quality_control.R
 
+# Adjust p-value and assign intron to genes:
+Rscript sqtl/fastQTL/adjust_pvalue.R
+
+# Pick interesting examples:
+Rscript sqtl/fastQTL/sQTL_examples.R
+
 
 # Count sQTLs: 
 Rscript sqtl/fastQTL/count_sqtl.R \

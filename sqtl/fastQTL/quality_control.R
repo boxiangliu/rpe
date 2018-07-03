@@ -27,6 +27,7 @@ plot_pval_histogram = function(fas){
 
 plot_qqplot = function(fas){
 	idx = sample(nrow(fas),size=1e5)
+	plot.new()
 	x = qqunif(fas$pval[idx],plot.it=FALSE)
 	x = as.data.frame(x)
 	p = ggplot(x,aes(x,y)) + 
@@ -71,7 +72,13 @@ p3 = plot_sqtl_vs_dist(glucose)
 p4 = plot_sqtl_vs_intron_boundary(glucose)
 
 p = plot_grid(p1,p2,p3,p4,labels=LETTERS[1:4],nrow=2)
-fig_fn = sprintf('%s/glucose_sqtl_quality_control.pdf',fig_dir)
+fig_fn = sprintf('%s/glucose_sqtl_quality_control_uc.pdf',fig_dir)
 save_plot(fig_fn,p,base_height=8,base_width=8)
-fig_fn = sprintf('%s/glucose_sqtl_quality_control.png',fig_dir)
+fig_fn = sprintf('%s/glucose_sqtl_quality_control_uc.png',fig_dir)
+save_plot(fig_fn,p,base_height=8,base_width=8)
+
+p = plot_grid(p1,p2,p3,p4,labels=letters[1:4],nrow=2)
+fig_fn = sprintf('%s/glucose_sqtl_quality_control_lc.pdf',fig_dir)
+save_plot(fig_fn,p,base_height=8,base_width=8)
+fig_fn = sprintf('%s/glucose_sqtl_quality_control_lc.png',fig_dir)
 save_plot(fig_fn,p,base_height=8,base_width=8)

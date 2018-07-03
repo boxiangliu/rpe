@@ -29,6 +29,7 @@ plot_pval_histogram = function(ras){
 
 plot_qqplot = function(ras){
 	idx = sample(nrow(ras),size=1e5)
+	plot.new()
 	x = qqunif(ras$pval[idx],plot.it=FALSE)
 	x = as.data.frame(x)
 	p = ggplot(x,aes(x,y)) + 
@@ -59,7 +60,7 @@ ras = read_rasqual_chr22()
 
 # Plot histogram of p-value:
 p1 = plot_pval_histogram(ras)
-save_plot('../figures/rasqual/pvalue_distribution.pdf',p)
+save_plot('../figures/rasqual/pvalue_distribution.pdf',p1)
 
 # Plot QQ-plot:
 p2 = plot_qqplot(ras)
@@ -74,5 +75,11 @@ p3 = plot_pvalue_vs_position(ras)
 top = plot_grid(p1,p2,labels=c('A','B'),nrow=1)
 bottom = plot_grid(p3,labels=c('C'))
 p = plot_grid(top,bottom,nrow=2,labels='')
-fig_fn = sprintf('%s/quality_control.png',fig_dir)
+fig_fn = sprintf('%s/quality_control_uc.png',fig_dir)
+save_plot(fig_fn,p,base_height=8,base_width=8)
+
+top = plot_grid(p1,p2,labels=c('a','b'),nrow=1)
+bottom = plot_grid(p3,labels=c('c'))
+p = plot_grid(top,bottom,nrow=2,labels='')
+fig_fn = sprintf('%s/quality_control_lc.png',fig_dir)
 save_plot(fig_fn,p,base_height=8,base_width=8)
