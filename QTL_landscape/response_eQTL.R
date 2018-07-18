@@ -85,7 +85,7 @@ read_genotype = function(snp,dir = genotype_dir){
 }
 
 update_name = function(x){
-	dna2rna = fread('../data/meta/dna2rna.txt',colClasses = c('character','character'))
+	dna2rna = fread('../data/meta/dna2rna.txt',colClasses = c('character','character','character'))
 	idx = match(x$sample,dna2rna$DNA)
 	x$sample = dna2rna[idx,RNA]
 	return(x)
