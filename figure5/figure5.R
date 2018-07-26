@@ -15,7 +15,7 @@ myopia_sQTL_manhattan_rds = '../processed_data/finemap/manhattan/manhattan_myopi
 RDH5_eQTL_fn = '../processed_data/rasqual/output/glucose/joint/chr12/ENSG00000135437.5_RDH5.txt'
 chr12_sQTL_fn = '../processed_data/sqtl/fastQTL/nominal/glucose/chr12.nominal.txt.gz'
 sashimi_fn = '../processed_data/sqtl/visualization/leafviz//rdh5.rda'
-boxplot_fn = '../processed_data/figure5/qtl/qtl.rda'
+ase_plot_fn = '../processed_data/figure5/qtl/eqtl.rda'
 
 fig_dir = '../figures/figure5/'
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
@@ -182,17 +182,20 @@ sQTL_myopia_locuscompare = sQTL_myopia_locuscompare$locuscompare + theme(axis.ti
 sashimi_plots = readRDS(sashimi_fn)
 sashimi_plots[[1]] = sashimi_plots[[1]] + theme(plot.margin = margin(0,5.5,0,30,'pt'),axis.title.y=element_text(size=11))
 sashimi_plots[[2]] = sashimi_plots[[2]] + theme(plot.margin = margin(0,5.5,0,30,'pt'),axis.title.y=element_text(size=11))
-sashimi_plots[[2]] = sashimi_plots[[2]] + annotate('text',x=18,y=-4,label='p-value < 2.01*x*10^{-5}',parse=TRUE)
+sashimi_plots[[2]] = sashimi_plots[[2]] + annotate('text',x=17,y=-4,label='p-value < 2.01*x*10^{-5}',parse=TRUE)
 
 # Load boxplot:
-boxplot = readRDS(boxplot_fn)
+ase_plot = readRDS(ase_plot_fn) + 
+ylab('Allelic expression') + 
+theme(axis.title=element_text(size=11))
+
 
 # save.image('figure5/figure5.rda')
 load('figure5/figure5.rda')
 
 # Make Figure 5:
-sashimi = plot_grid(sashimi_plots[[1]],sashimi_plots[[2]],nrow=2,labels=c('G',''))
-sashimi_box = plot_grid(sashimi,boxplot,ncol=2,rel_widths = c(5.8,2.2),labels=c('','H'))
+sashimi = plot_grid(sashimi_plots[[1]],sashimi_plots[[2]],nrow=2,labels=c('H',''))
+sashimi_box = plot_grid(ase_plot,sashimi,ncol=2,rel_widths = c(1.5,6.5),labels=c('G',''))
 top_right = plot_grid(eQTL_amd_locuscompare,sQTL_amd_locuscompare,nrow=2,align='v',labels=c('B','C'))
 top = plot_grid(amd_manhattan_plot,top_right,nrow=1,align='h',labels = c('A',''),rel_widths = c(3,1))
 bottom_right = plot_grid(eQTL_myopia_locuscompare,sQTL_myopia_locuscompare,nrow=2,align='v',labels=c('E','F'))
@@ -201,8 +204,8 @@ entire = plot_grid(top,bottom,sashimi_box,nrow=3,rel_heights = c(2,2,1),align='v
 fig_fn = sprintf('%s/figure5_uc.pdf',fig_dir)
 save_plot(fig_fn,entire,base_width=8,base_height=10)
 
-sashimi = plot_grid(sashimi_plots[[1]],sashimi_plots[[2]],nrow=2,labels=c('g',''))
-sashimi_box = plot_grid(sashimi,boxplot,ncol=2,rel_widths = c(5.8,2.2),labels=c('','h'))
+sashimi = plot_grid(sashimi_plots[[1]],sashimi_plots[[2]],nrow=2,labels=c('h',''))
+sashimi_box = plot_grid(ase_plot,sashimi,ncol=2,rel_widths = c(1.5,6.5),labels=c('g',''))
 top_right = plot_grid(eQTL_amd_locuscompare,sQTL_amd_locuscompare,nrow=2,align='v',labels=c('b','c'))
 top = plot_grid(amd_manhattan_plot,top_right,nrow=1,align='h',labels = c('a',''),rel_widths = c(3,1))
 bottom_right = plot_grid(eQTL_myopia_locuscompare,sQTL_myopia_locuscompare,nrow=2,align='v',labels=c('e','f'))
