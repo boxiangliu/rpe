@@ -1,0 +1,2 @@
+Rscript motif_enrichment/get_sequence.R
+bash motif_enrichment/homer.sh
