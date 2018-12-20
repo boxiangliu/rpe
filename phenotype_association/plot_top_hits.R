@@ -21,6 +21,7 @@ plot_data = function(data){
 # read data
 all_hits = fread(all_hits_fn)
 phenotype = fread(phenotype_fn)
+phenotype = phenotype[sample!='021011']
 dosage = fread(dosage_fn)
 
 # convert dosage to genotype

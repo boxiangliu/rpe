@@ -22,7 +22,7 @@ plot_treatment_specific_eQTL = function(rds, genes, labels){
 		p = eQTL[[genes[i]]] + 
 		scale_fill_manual(values=c(Glucose='#F87660',Galactose='#619CFF'),guide='none') + 
 		theme(strip.text = element_blank(),strip.background=element_blank()) + 
-		ylab('')
+		ylab('Expr.')
 		return(p)
 	}
 	plot_grid(plotlist = p,nrow = 1, align = 'h', labels = labels) 

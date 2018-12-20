@@ -112,7 +112,7 @@ plot_eQTL = function(gxe){
 		facet_grid(.~treatment) +
 		xlab('') + 
 		ylab('Normalized residuals') + 
-		scale_fill_manual(guide='none',values = c(Glucose = 'red', Galactose = 'green')) + 
+		scale_fill_manual(guide='none',values = c(Glucose = '#F87660', Galactose = '#619CFF')) + 
 		theme(strip.background =element_rect(fill="white",color='black',size=1,linetype = 'solid'))
 	return(p)
 }

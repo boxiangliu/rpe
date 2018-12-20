@@ -8,10 +8,10 @@ library(cowplot)
 #-----------#
 # Variables #
 #-----------#
-treeQTL_MT_fn = '../processed_data/response_eQTL/treeQTL_MT/eGenesMT.txt'
+treeQTL_MT_fn = '../processed_data/response_eQTL/treeQTL_MT/Bliu_MTtreeQTL/eGenesMT.txt'
 GTEx_v7_dir = '/mnt/lab_data/montgomery/shared/datasets/gtex/GTEx_Analysis_2016-01-15_v7/eqtls/top_associations/'
-glucose_eGenes_fn = '../processed_data/rasqual/output/glucose/treeQTL/eGenes.txt'
-galactose_eGenes_fn = '../processed_data/rasqual/output/galactose/treeQTL/eGenes.txt'
+glucose_eGenes_fn = '../processed_data/response_eQTL/treeQTL_MT/Bliu_MTtreeQTL/eGenes_glucose.txt'
+galactose_eGenes_fn = '../processed_data/response_eQTL/treeQTL_MT/Bliu_MTtreeQTL/eGenes_galactose.txt'
 gtex_tissue_color_fn = '../data/gtex/gtex_tissue_colors.txt'
 fig_dir = '../figures/rpe_specific_eQTL/specific_eGenes_v2/'
 out_dir = '../processed_data/rpe_specific_eQTL/specific_eGenes_v2/'
@@ -35,7 +35,7 @@ read_GTEx = function(fn){
 	tissue = basename(fn)
 	tissue = str_replace(tissue,'.v7.egenes.txt.gz','')
 	command = sprintf('gunzip -c %s',fn)
-	GTEx = fread(command)
+	GTEx = fread(cmd = command)
 	GTEx = GTEx[,list(gene_id,gene_name,variant_id,rs_id_dbSNP147_GRCh37p13,pval_beta,slope,slope_se,qval)]
 	GTEx$tissue = tissue
 	return(GTEx)
@@ -62,7 +62,7 @@ read_tissue_color = function(gtex_tissue_color_fn){
 	gtex_tissue_color[,tissue_color_hex:=paste0('#',tissue_color_hex)]
 	tissue_color = gtex_tissue_color$tissue_color_hex
 	names(tissue_color) = gtex_tissue_color$tissue_site_detail_id
-	tissue_color = c(tissue_color,c(`RPE - glucose` = '#FF0000', `RPE - galactose` = '#00FF00'))
+	tissue_color = c(tissue_color,c(`RPE - glucose` = '#F87660', `RPE - galactose` = '#619CFF'))
 	return(tissue_color)
 }
 

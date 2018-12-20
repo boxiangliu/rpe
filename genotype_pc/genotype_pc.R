@@ -24,6 +24,7 @@ plot_screeplot = function(pc,top = 10){
 		geom_point() + 
 		geom_line() + 
 		xlab('PC') + 
+		ylab('Proportion of variance') + 
 		scale_x_continuous(breaks = 1:top, labels = 1:top)
 }
 

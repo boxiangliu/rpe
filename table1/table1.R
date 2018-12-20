@@ -1,7 +1,7 @@
 library(data.table)
 source('utils/genome_annotation.R')
 
-treeQTL_fn = '../processed_data/response_eQTL/treeQTL_MT/eGenesMT.txt'
+treeQTL_fn = '../processed_data/response_eQTL/treeQTL_MT/Bliu_MTtreeQTL/eGenesMT.txt'
 treeQTL = fread(treeQTL_fn)
 out_dir = '../processed_data/table1/table1/'
 if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
@@ -28,6 +28,8 @@ setnames(tested_count,'count','tested')
 glucose_eQTL = treeQTL[glucose==1&galactose==0,gene]
 glucose_count = count_features(expressed_genes[gene_id%in%glucose_eQTL])
 setnames(glucose_count,'count','glucose')
+fwrite(expressed_genes[gene_id%in%glucose_eQTL],sprintf('%s/glucose_eQTL_expressed.txt',out_dir),sep='\t')
+
 
 shared_eQTL = treeQTL[glucose==1&galactose==1,gene]
 shared_count = count_features(expressed_genes[gene_id%in%shared_eQTL])
@@ -36,6 +38,7 @@ setnames(shared_count,'count','shared')
 galactose_eQTL = treeQTL[glucose==0&galactose==1,gene]
 galactose_count = count_features(expressed_genes[gene_id%in%galactose_eQTL])
 setnames(galactose_count,'count','galactose')
+fwrite(expressed_genes[gene_id%in%galactose_eQTL],sprintf('%s/galactose_eQTL_expressed.txt',out_dir),sep='\t')
 
 merged = merge(tested_count,glucose_count,by='type')
 merged = merge(merged,galactose_count,by='type')

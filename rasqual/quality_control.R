@@ -48,10 +48,19 @@ plot_pvalue_vs_position = function(ras){
 	p = ggplot(ras2,aes(dist,-log10(pval),size=(10*abs(pi-0.5))^2))+
 		geom_point(alpha=0.2)+
 		scale_size_continuous(name=expression('|'*pi*'-0.5|'),breaks=(10*c(0,0.1,0.2,0.3,0.4,0.5))^2,labels=c(0,0.1,0.2,0.3,0.4,0.5))+
-		theme(legend.position=c(0.05,0.95),legend.justification=c('left','top'))+
+		theme(legend.position=c(0.05,0.99),legend.justification=c('left','top'))+
 		scale_y_sqrt()+
 		xlab('Distance to TSS')+
 		ylab(expression(-log[10]*'(p-value)'))
+	return(p)
+}
+
+plot_eqtl_vs_dist = function(ras){
+	sig_eqtl=ras[pval<1e-4,]
+	p=ggplot(sig_eqtl,aes(dist))+
+		geom_density(color='black',fill='black')+
+		xlab('Distance to TSS')+
+		ylab('Frequency')
 	return(p)
 }
 
@@ -71,15 +80,19 @@ ras = merge(ras,gencode[,list(gene_id,start,end)],by.x='fid',by.y='gene_id')
 ras[,dist:=pos-start]
 p3 = plot_pvalue_vs_position(ras)
 
+# Plot a histogram of eQTL along genomic position:
+p4 = plot_eqtl_vs_dist(ras)
+
+
 # Make entire plot:
 top = plot_grid(p1,p2,labels=c('A','B'),nrow=1)
-bottom = plot_grid(p3,labels=c('C'))
+bottom = plot_grid(p3,p4,labels=c('C','D'),nrow=1)
 p = plot_grid(top,bottom,nrow=2,labels='')
 fig_fn = sprintf('%s/quality_control_uc.png',fig_dir)
 save_plot(fig_fn,p,base_height=8,base_width=8)
 
 top = plot_grid(p1,p2,labels=c('a','b'),nrow=1)
-bottom = plot_grid(p3,labels=c('c'))
+bottom = plot_grid(p3,p4,labels=c('c','d'),nrow=1)
 p = plot_grid(top,bottom,nrow=2,labels='')
 fig_fn = sprintf('%s/quality_control_lc.png',fig_dir)
 save_plot(fig_fn,p,base_height=8,base_width=8)

@@ -11,7 +11,7 @@ source('utils/genome_annotation.R')
 
 glucose_dir = '../processed_data/rasqual/output/glucose/joint/'
 galactose_dir = '../processed_data/rasqual/output/galactose/joint/'
-treeQTL_MT_fn = '../processed_data/response_eQTL/treeQTL_MT/eGenesMT.txt'
+treeQTL_MT_fn = '../processed_data/response_eQTL/treeQTL_MT/Bliu_MTtreeQTL/eGenesMT.txt'
 out_dir = '../processed_data/QTL_landscape/eQTL_manhattan/'
 fig_dir = '../figures/QTL_landscape/eQTL_manhattan/'
 imprinted_gene_fn = '../data/imprinted_genes/imprinted_genes.txt'
@@ -307,7 +307,7 @@ get_response_eQTLs = function(glucose,galactose){
 #-----------#
 treeQTL_MT = read_TreeQTL_MT(treeQTL_MT_fn)
 
-glucose_list = list.files(glucose_dir,pattern = 'txt',recursive=TRUE,full.names=TRUE)
+glucose_list = list.files(glucose_dir,pattern = 'txt$',recursive=TRUE,full.names=TRUE)
 glucose = foreach(fn = glucose_list, .combine = rbind)%dopar%{
 	rasqual = read_rasqual(fn)
 	return(rasqual)
@@ -320,7 +320,7 @@ out_fn = sprintf('%s/rasqual_glucose_top_eQTL.txt',out_dir)
 fwrite(glucose,out_fn,sep='\t')
 glucose = fread(out_fn)
 
-galactose_list = list.files(galactose_dir,pattern = 'txt',recursive=TRUE,full.names=TRUE)
+galactose_list = list.files(galactose_dir,pattern = 'txt$',recursive=TRUE,full.names=TRUE)
 galactose = foreach(fn = galactose_list, .combine = rbind)%dopar%{
 	rasqual = read_rasqual(fn)
 	return(rasqual)
@@ -368,7 +368,7 @@ save_plot(fig_fn,p,base_width = 6, base_height = 6)
 #-------------#
 # cicros plot #
 #-------------#
-rpe_specific_eGenes_fn = '../processed_data/rpe_specific_eQTL/specific_eGenes_v2//rpe_specific_eGenes.txt'
+rpe_specific_eGenes_fn = '../processed_data/rpe_specific_eQTL/specific_eGenes_v2/rpe_specific_eGenes.txt'
 rpe_specific_eGenes = fread(rpe_specific_eGenes_fn)
 
 mean_expression = read_mean_expression()

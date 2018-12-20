@@ -4,6 +4,7 @@ library(manhattan)
 library(ggrepel)
 library(stringr)
 library(locuscomparer)
+library(ggsignif)
 
 #-----------#
 # Variables #
@@ -16,6 +17,7 @@ RDH5_eQTL_fn = '../processed_data/rasqual/output/glucose/joint/chr12/ENSG0000013
 chr12_sQTL_fn = '../processed_data/sqtl/fastQTL/nominal/glucose/chr12.nominal.txt.gz'
 sashimi_fn = '../processed_data/sqtl/visualization/leafviz//rdh5.rda'
 ase_plot_fn = '../processed_data/figure5/qtl/eqtl.rda'
+gel_image_data_fn = '../processed_data/figure5/normal_vs_mis_spliced/normal_vs_mis_spliced.txt'
 
 fig_dir = '../figures/figure5/'
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
@@ -104,6 +106,21 @@ read_myopia_gwas = function(){
 	return(gwas)
 }
 
+calculate_mean_and_se = function(gel_image_data){
+	gel_image_data[,list(mean = mean(value), se = sd(value)/sqrt(.N)), by = 'condition']
+}
+
+plot_gel = function(gel_plot_data){
+	ggplot(gel_plot_data,aes(x = condition, y = mean, ymax = mean + se, ymin = mean - se)) + 
+		geom_errorbar(width = 0.25) + 
+		geom_bar(stat = 'identity') + 
+		xlab(NULL) + 
+		ylab('CHX/DMSO\nfold change') + 
+		ylim(0,6.5) + 
+		geom_signif(y_position = 6, xmin = 1, xmax = 2, annotation = '*', textsize = 5, tip_length = c(0.94,0.04)) + 
+		theme(axis.title = element_text(size = 11))
+}
+
 #------#
 # Main #
 #------#
@@ -189,9 +206,19 @@ ase_plot = readRDS(ase_plot_fn) +
 ylab('Allelic expression') + 
 theme(axis.title=element_text(size=11))
 
+# read normal vs mis-spliced isoform: 
+gel_image_data = fread(gel_image_data_fn)
+gel_stat = t.test(value ~ condition, data = gel_image_data, alternative = 'greater', var.equal = TRUE) # p-value = 0.02655
+
+gel_plot_data = calculate_mean_and_se(gel_image_data)
+gel_plot_data[,condition:=factor(condition,levels = c('Normal','Misspliced'))]
+
+gel_plot = plot_gel(gel_plot_data)
+
 
 # save.image('figure5/figure5.rda')
-load('figure5/figure5.rda')
+# load('figure5/figure5.rda')
+blank = ggplot() + geom_blank()
 
 # Make Figure 5:
 sashimi = plot_grid(sashimi_plots[[1]],sashimi_plots[[2]],nrow=2,labels=c('H',''))
@@ -200,9 +227,10 @@ top_right = plot_grid(eQTL_amd_locuscompare,sQTL_amd_locuscompare,nrow=2,align='
 top = plot_grid(amd_manhattan_plot,top_right,nrow=1,align='h',labels = c('A',''),rel_widths = c(3,1))
 bottom_right = plot_grid(eQTL_myopia_locuscompare,sQTL_myopia_locuscompare,nrow=2,align='v',labels=c('E','F'))
 bottom = plot_grid(myopia_manhattan_plot,bottom_right,nrow=1,align = 'h',labels = c('D',''),rel_widths = c(3,1))
-entire = plot_grid(top,bottom,sashimi_box,nrow=3,rel_heights = c(2,2,1),align='v',labels = '')
+gel_row = plot_grid(blank, blank, gel_plot, nrow = 1, align = 'h', labels = c('I','J','K'))
+entire = plot_grid(top,bottom,sashimi_box,gel_row, nrow=4,rel_heights = c(2,2,1,1),align='v',labels = '')
 fig_fn = sprintf('%s/figure5_uc.pdf',fig_dir)
-save_plot(fig_fn,entire,base_width=8,base_height=10)
+save_plot(fig_fn,entire,base_width=8,base_height=12)
 
 sashimi = plot_grid(sashimi_plots[[1]],sashimi_plots[[2]],nrow=2,labels=c('h',''))
 sashimi_box = plot_grid(ase_plot,sashimi,ncol=2,rel_widths = c(1.5,6.5),labels=c('g',''))
@@ -210,7 +238,8 @@ top_right = plot_grid(eQTL_amd_locuscompare,sQTL_amd_locuscompare,nrow=2,align='
 top = plot_grid(amd_manhattan_plot,top_right,nrow=1,align='h',labels = c('a',''),rel_widths = c(3,1))
 bottom_right = plot_grid(eQTL_myopia_locuscompare,sQTL_myopia_locuscompare,nrow=2,align='v',labels=c('e','f'))
 bottom = plot_grid(myopia_manhattan_plot,bottom_right,nrow=1,align = 'h',labels = c('d',''),rel_widths = c(3,1))
-entire = plot_grid(top,bottom,sashimi_box,nrow=3,rel_heights = c(2,2,1),align='v',labels = '')
+gel_row = plot_grid(blank, blank, gel_plot, nrow = 1, align = 'h', labels = c('i','j','k'))
+entire = plot_grid(top,bottom,sashimi_box,gel_row, nrow=4,rel_heights = c(2,2,1,1),align='v',labels = '')
 fig_fn = sprintf('%s/figure5_lc.pdf',fig_dir)
-save_plot(fig_fn,entire,base_width=8,base_height=10)
+save_plot(fig_fn,entire,base_width=8,base_height=12)
 
