@@ -5,7 +5,7 @@ library(doMC)
 registerDoMC(15)
 source('utils/genome_annotation.R')
 
-treeQTL_fn = '../processed_data/response_eQTL/treeQTL_MT/eGenesMT.txt'
+treeQTL_fn = '../processed_data/response_eQTL/treeQTL_MT/Bliu_MTtreeQTL/eGenesMT.txt'
 glucose_dir = '../processed_data/rasqual/output/glucose/joint/'
 galactose_dir = '../processed_data/rasqual/output/galactose/joint/'
 out_dir = '../processed_data/supplementary_tables/qtl_summary/eqtl/'
