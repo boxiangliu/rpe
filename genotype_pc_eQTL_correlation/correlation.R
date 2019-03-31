@@ -6,11 +6,14 @@ library(stringr)
 library(ggplot2)
 library(cowplot)
 library(ggsignif)
+library(openxlsx)
+
 
 eGenes_fn = '../processed_data/response_eQTL/treeQTL_MT/Bliu_MTtreeQTL/eGenesMT.txt'
 glucose_dir = '../processed_data/rasqual/output/glucose/joint/'
 galactose_dir = '../processed_data/rasqual/output/galactose/joint'
 genotype_pc_fn = '../processed_data/genotype_pc/genotype_pc/pc_nodup.tsv'
+eyegex_fn = '../data/eyegex/eyegex-supp3.xlsx'
 
 out_dir = '../processed_data/genotype_pc_eQTL_correlation/correlation/'
 if (!dir.exists(out_dir)) {dir.create(out_dir,recursive = TRUE)}
@@ -41,9 +44,11 @@ read_lead_eQTLs = function(eGene, dir){
 	res = str_split_fixed(eSNP$gene,'_',2)
 	eSNP$gene = res[,1]
 	eSNP$gene_name = res[,2]
+	eSNP$gene = str_split_fixed(eSNP$gene,'\\.',2)[,1]
 
 	return(eSNP)
 }
+
 
 extract_lead_eSNP_genotype = function(eSNP){
 
@@ -76,6 +81,7 @@ extract_lead_eSNP_genotype = function(eSNP){
 
 # Get RPE eGenes 
 eGenes = fread(eGenes_fn)
+eGenes$gene = str_split_fixed(eGenes$gene,'\\.',2)[,1]
 
 # Get RPE lead eSNP
 glucose_eSNP = read_lead_eQTLs(eGenes[glucose==1,gene],glucose_dir)
@@ -92,7 +98,12 @@ dna2rna = fread('../data/meta/dna2rna.txt', colClasses = 'character')
 genotype_pc$sample = dna2rna[match(genotype_pc$sample, dna2rna$RNA),DNA]
 
 
-calc_max_r2 = function(genotype,genotype_pc,eSNP){
+# Read eyegex dataset: 
+eyegex = as.data.table(read.xlsx(eyegex_fn,sheet = 1, rows = 6:14865))
+
+
+
+calc_max_r2 = function(genotype,genotype_pc,eSNP,eyegex){
 	# Calculate correlation between genotype PCs and eSNP genotype
 	mat1 = genotype[,match(genotype_pc$sample,colnames(genotype)),with=FALSE]
 	mat2 = genotype_pc[,2:11]
@@ -123,16 +134,20 @@ calc_max_r2 = function(genotype,genotype_pc,eSNP){
 	r2_max = data.table(genotype[,list(chr = CHROM, pos = POS)], r2_max = r2_max)
 	r2_max = merge(r2_max,eSNP[,list(gene,gene_name,chr,pos)],by=c('chr','pos'))
 	r2_max = merge(r2_max,eGenes,by=c('gene','gene_name'))
+	r2_max$eyegex = r2_max$gene %in% eyegex$gene
 
 	return(r2_max)
 }
 
 
-glucose_r2_max = calc_max_r2(glucose_genotype,genotype_pc,glucose_eSNP)
-x1 = glucose_r2_max[,list(r2_max, condition = 'glucose', gene, specific = ifelse(galactose == 1, 'Shared','Specific'))]
+glucose_r2_max = calc_max_r2(glucose_genotype,genotype_pc,glucose_eSNP,eyegex)
+# x1 = glucose_r2_max[,list(r2_max, condition = 'glucose', gene, specific = ifelse(galactose == 1, 'Shared','Specific'))] # condition-specific eQTL
+x1 = glucose_r2_max[,list(r2_max, condition = 'glucose', gene, specific = ifelse(eyegex == TRUE, 'Shared with EyeGEx','RPE-specific'))] 
 
-galactose_r2_max = calc_max_r2(galactose_genotype,genotype_pc,galactose_eSNP)
-x2 = galactose_r2_max[,list(r2_max, condition = 'galactose', gene, specific = ifelse(glucose == 1, 'Shared', 'Specific'))]
+galactose_r2_max = calc_max_r2(galactose_genotype,genotype_pc,galactose_eSNP,eyegex)
+# x2 = galactose_r2_max[,list(r2_max, condition = 'galactose', gene, specific = ifelse(glucose == 1, 'Shared', 'Specific'))]
+x2 = galactose_r2_max[,list(r2_max, condition = 'galactose', gene, specific = ifelse(eyegex == TRUE, 'Shared with EyeGEx','RPE-specific'))]
+
 
 merged_r2_max = rbind(x1,x2)
 
@@ -142,7 +157,7 @@ p = ggplot(merged_r2_max,aes(x = as.character(specific), y = r2_max)) +
 	geom_boxplot() + 
 	xlab('eQTL classification') + 
 	ylab(expression('max('~r^2~')')) + 
-	geom_signif(comparisons = list(c('Specific','Shared')))
+	geom_signif(comparisons = list(c('Shared with EyeGEx','RPE-specific')))
 
 
 t.test(r2_max~specific,merged_r2_max) # p = 0.7334
