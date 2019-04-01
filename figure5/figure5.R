@@ -97,6 +97,7 @@ read_amd_gwas = function(){
 	gwas = fread('../data/gwas/Fritsche_2015_AdvancedAMD.txt')
 	gwas[,Chrom:=paste0('chr',Chrom)]
 	gwas = gwas[,list(rsid=Marker,chr=Chrom,pos=Pos,pval=GC.Pvalue)]
+	gwas$pval = as.numeric(gwas$pval)
 	return(gwas)
 }
 
@@ -121,6 +122,16 @@ plot_gel = function(gel_plot_data){
 		theme(axis.title = element_text(size = 11))
 }
 
+boxplot_gel = function(gel_image_data){
+	ggplot(gel_image_data,aes(x = condition, y = value)) + 
+		geom_boxplot() + 
+		xlab(NULL) + 
+		ylab('CHX/DMSO\nfold change') + 
+		ylim(0,6.5) + 
+		geom_signif(y_position = 6, xmin = 1, xmax = 2, annotation = '*', textsize = 5, tip_length = c(0.89,0.02)) + 
+		theme(axis.title = element_text(size = 11))
+}
+
 #------#
 # Main #
 #------#
@@ -137,7 +148,7 @@ myopia_manhattan_plot = plot_manhattan(myopia_manhattan_data, label = 'Myopia')
 
 
 # Conservation:
-conservation = plot_conservation()
+# conservation = plot_conservation()
 
 # Locuscompare:
 amd_gwas = read_amd_gwas()
@@ -153,10 +164,10 @@ eQTL_amd_locuscompare = main(
 	title1 = 'AMD',
 	title2 = 'eQTL',
 	snp = 'rs3138141',
-	vcf_fn = '/srv/persistent/bliu2/shared/1000genomes/phase3v5a/ALL.chr12.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz',
 	combine = FALSE,
 	legend = FALSE)
 eQTL_amd_locuscompare = eQTL_amd_locuscompare$locuscompare + theme(axis.title = element_text(size=11))
+
 
 RDH5_sQTL_into_amd = merge(RDH5_sQTL,amd_gwas[,list(chr,pos,rsid)],by=c('chr','pos'))
 sQTL_amd_locuscompare = main(
@@ -165,7 +176,6 @@ sQTL_amd_locuscompare = main(
 	title1 = 'AMD',
 	title2 = 'sQTL',
 	snp = 'rs3138141',
-	vcf_fn = '/srv/persistent/bliu2/shared/1000genomes/phase3v5a/ALL.chr12.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz',
 	combine = FALSE,
 	legend = FALSE)
 sQTL_amd_locuscompare = sQTL_amd_locuscompare$locuscompare + theme(axis.title = element_text(size=11))
@@ -177,7 +187,6 @@ eQTL_myopia_locuscompare = main(
 	title1 = 'Myopia',
 	title2 = 'eQTL',
 	snp = 'rs3138141',
-	vcf_fn = '/srv/persistent/bliu2/shared/1000genomes/phase3v5a/ALL.chr12.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz',
 	combine = FALSE,
 	legend = FALSE)
 eQTL_myopia_locuscompare = eQTL_myopia_locuscompare$locuscompare + theme(axis.title = element_text(size=11))
@@ -189,7 +198,6 @@ sQTL_myopia_locuscompare = main(
 	title1 = 'Myopia',
 	title2 = 'sQTL',
 	snp = 'rs3138141',
-	vcf_fn = '/srv/persistent/bliu2/shared/1000genomes/phase3v5a/ALL.chr12.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz',
 	combine = FALSE,
 	legend = FALSE)
 sQTL_myopia_locuscompare = sQTL_myopia_locuscompare$locuscompare + theme(axis.title = element_text(size=11))
@@ -208,12 +216,15 @@ theme(axis.title=element_text(size=11))
 
 # read normal vs mis-spliced isoform: 
 gel_image_data = fread(gel_image_data_fn)
+gel_image_data[,condition:=factor(condition,levels = c('Normal','Misspliced'))]
+
 gel_stat = t.test(value ~ condition, data = gel_image_data, alternative = 'greater', var.equal = TRUE) # p-value = 0.02655
 
 gel_plot_data = calculate_mean_and_se(gel_image_data)
 gel_plot_data[,condition:=factor(condition,levels = c('Normal','Misspliced'))]
 
 gel_plot = plot_gel(gel_plot_data)
+gel_boxplot = boxplot_gel(gel_image_data)
 
 
 # save.image('figure5/figure5.rda')
@@ -227,7 +238,7 @@ top_right = plot_grid(eQTL_amd_locuscompare,sQTL_amd_locuscompare,nrow=2,align='
 top = plot_grid(amd_manhattan_plot,top_right,nrow=1,align='h',labels = c('A',''),rel_widths = c(3,1))
 bottom_right = plot_grid(eQTL_myopia_locuscompare,sQTL_myopia_locuscompare,nrow=2,align='v',labels=c('E','F'))
 bottom = plot_grid(myopia_manhattan_plot,bottom_right,nrow=1,align = 'h',labels = c('D',''),rel_widths = c(3,1))
-gel_row = plot_grid(blank, blank, gel_plot, nrow = 1, align = 'h', labels = c('I','J','K'))
+gel_row = plot_grid(blank, blank, gel_boxplot, nrow = 1, align = 'h', labels = c('I','J','K'))
 entire = plot_grid(top,bottom,sashimi_box,gel_row, nrow=4,rel_heights = c(2,2,1,1),align='v',labels = '')
 fig_fn = sprintf('%s/figure5_uc.pdf',fig_dir)
 save_plot(fig_fn,entire,base_width=8,base_height=12)
@@ -238,7 +249,7 @@ top_right = plot_grid(eQTL_amd_locuscompare,sQTL_amd_locuscompare,nrow=2,align='
 top = plot_grid(amd_manhattan_plot,top_right,nrow=1,align='h',labels = c('a',''),rel_widths = c(3,1))
 bottom_right = plot_grid(eQTL_myopia_locuscompare,sQTL_myopia_locuscompare,nrow=2,align='v',labels=c('e','f'))
 bottom = plot_grid(myopia_manhattan_plot,bottom_right,nrow=1,align = 'h',labels = c('d',''),rel_widths = c(3,1))
-gel_row = plot_grid(blank, blank, gel_plot, nrow = 1, align = 'h', labels = c('i','j','k'))
+gel_row = plot_grid(blank, blank, gel_boxplot, nrow = 1, align = 'h', labels = c('i','j','k'))
 entire = plot_grid(top,bottom,sashimi_box,gel_row, nrow=4,rel_heights = c(2,2,1,1),align='v',labels = '')
 fig_fn = sprintf('%s/figure5_lc.pdf',fig_dir)
 save_plot(fig_fn,entire,base_width=8,base_height=12)
