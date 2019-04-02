@@ -12,6 +12,8 @@ gtex_tissue_color_fn = '../data/gtex/gtex_tissue_colors.txt'
 highlight_gene_fn = 'figure1/Fig 1b genes.xlsx'
 fig_dir = '../figures/figure1/'
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
+out_dir = '../processed_data/figure1/'
+if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
 
 make_plot_data = function(out,biotype){
 	plot_data = copy(out)
@@ -125,6 +127,7 @@ tissue_color = read_tissue_color(gtex_tissue_color_fn)
 mds_fn = '../processed_data/mds/mds.GTExV7/mds_plot_data.rda'
 result = readRDS(mds_fn)
 mds = result[[1]]
+fwrite(mds, '../processed_data/figure1/mds.txt', sep = '\t')
 mds_centroid = result[[2]]
 p1=ggplot(mds,aes(x=x,y=y,color=tissue))+
 	geom_point()+scale_color_manual(values=tissue_color,guide='none')+
