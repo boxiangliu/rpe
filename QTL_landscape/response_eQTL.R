@@ -126,7 +126,7 @@ get_snp = function(rasqual){
 	return(snp)
 }
 
-plot_eQTL_driver = function(gene_id,gene_name,dir,expression_matrix){
+plot_eQTL_driver = function(gene_id,gene_name,dir,expression_matrix,out_fn=NULL){
 	fn = find_rasqual_fn(gene_id,gene_name,dir)
 	rasqual = read_rasqual(fn)
 	snp = get_snp(rasqual)
@@ -146,6 +146,9 @@ plot_eQTL_driver = function(gene_id,gene_name,dir,expression_matrix){
 	galactose_residual$treatment = 'Galactose'
 	residual = rbind(glucose_residual,galactose_residual)
 	gxe = merge(genotype,residual)
+
+	if (!is.null(out_fn)) fwrite(gxe,out_fn,sep='\t')
+
 	gxe[,treatment:=factor(treatment,c('Glucose','Galactose'))]
 	p = plot_eQTL(gxe)
 	return(p)

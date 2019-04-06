@@ -67,6 +67,8 @@ get_data = function(clusters,clusterID){
 }
 
 mydata = get_data(clusters,'clu_1202')
+# START HERE: look at make_cluster_plot
+
 
 plotTitle = c(mydata$gene, as.character(mydata$cluster))
 introns$verdict[introns$verdict == 'novel annotated pair'] = 'annotated'
@@ -79,6 +81,7 @@ plots = make_cluster_plot(mydata$cluster,
 	exons_table = exons_table,
 	counts = counts,
 	introns = introns)
+
 plots[[1]] = plots[[1]] 
 plots[[2]] = plots[[2]] + guides(color=FALSE) 
 p = plot_grid(plots[[1]],plots[[2]],nrow=2,labels='')
@@ -86,3 +89,15 @@ fig_fn = sprintf('%s/rdh5.pdf',fig_dir)
 save_plot(fig_fn,p,base_height=8,base_width=8)
 out_fn = sprintf('%s/rdh5.rda',out_dir)
 saveRDS(plots,out_fn)
+
+# Save plotting data:
+source('sqtl/visualization/make_cluster_plot_2.R')
+data = make_cluster_plot_2(mydata$cluster,
+	main_title = NULL,
+	meta = meta,
+	cluster_ids = cluster_ids,
+	exons_table = exons_table,
+	counts = counts,
+	introns = introns)
+out = rbind(data[[1]],data[[2]][,-11],data[[3]],data[[4]][,-11],fill=TRUE)
+write.table(out, sprintf('%s/leafviz.txt', out_dir), quote= FALSE, sep = '\t', row.names = FALSE, col.names =TRUE)

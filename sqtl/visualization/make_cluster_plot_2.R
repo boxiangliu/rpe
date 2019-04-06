@@ -125,6 +125,7 @@ make_cluster_plot <- function(
   last_group=groups[length(groups)]
   
   plots <- list()
+  edge_container = list()
   for( fancyVar in 1:length(groups) ){
 
     intron_meta$counts=summary_func(y[ groups[fancyVar]==x,,drop=F])
@@ -204,6 +205,8 @@ make_cluster_plot <- function(
       edge
     })
 
+    edge_container[[length(edge_container) + 1]] = allEdges
+    edge_container[[length(edge_container) + 1]] = allEdgesP
 
     if ( all(is.na(main_title)) | !first_plot){
       new_theme_empty$plot.title <- element_blank()
@@ -425,7 +428,8 @@ make_cluster_plot <- function(
   # if( is.na(snp_pos) ){
   #   gridExtra::grid.arrange( plots[[1]], plots[[2]], ncol =1)
   # }
-  return(plots)
+  return(edge_container)
+
 }
   
 

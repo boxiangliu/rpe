@@ -42,6 +42,7 @@ data_plot = data_sig[,c(1,2,4,6,12)]
 setDT(data_plot)
 names(data_plot) = c("Pathway","Size","NES","FDR","Direction")
 setorder(data_plot,-capitalize(Pathway))
+fwrite(data_plot,'../processed_data/diff_expression/plot_GSEA/data_plot.txt', sep = '\t')
 
 data_plot = data_plot[rev(order(capitalize(data_plot$Pathway))),]
 data_plot[,Pathway:=factor(Pathway,levels=Pathway)]

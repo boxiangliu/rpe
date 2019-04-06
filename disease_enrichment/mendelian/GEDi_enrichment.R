@@ -16,7 +16,7 @@ if (!dir.exists(fig_dir)) dir.create(fig_dir,recursive=TRUE)
 if (!dir.exists(out_dir)) dir.create(out_dir,recursive=TRUE)
 
 read_tissue = function(tissue_fn){
-	tissue = unname(unlist(fread(tissue_fn,header=FALSE)))
+	tissue = unname(unlist(fread(tissue_fn,header=FALSE, sep = '\t')))
 	return(tissue)
 }
 
@@ -70,6 +70,7 @@ tissue = c(tissue,'RPE')
 
 GEDi = read_GEDi(GEDi_fn)
 t_stat = calculate_t_stat(zscore_dir,tissue,GEDi)
+fwrite(t_stat, '../processed_data/disease_enrichment/mendelian/GEDi_enrichment/t_stat.txt', sep = '\t')
 t_stat[tissue=='RPE',pval] # 1.554947e-10
 p = plot_t_stat(t_stat)
 out_fn = sprintf('%s/GEDi_enrichment.rds',out_dir)

@@ -21,6 +21,9 @@ gel_image_data_fn = '../processed_data/figure5/normal_vs_mis_spliced/normal_vs_m
 
 fig_dir = '../figures/figure5/'
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
+out_dir = '../processed_data/figure5/'
+if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
+
 CUTOFF = 0.01
 #-----------#
 # Functions #
@@ -213,6 +216,7 @@ sashimi_plots[[2]] = sashimi_plots[[2]] + annotate('text',x=17,y=-4,label='p-val
 ase_plot = readRDS(ase_plot_fn) + 
 ylab('Allelic expression') + 
 theme(axis.title=element_text(size=11))
+fwrite(ase_plot$data,sprintf('%s/ase.txt',out_dir), sep = '\t')
 
 # read normal vs mis-spliced isoform: 
 gel_image_data = fread(gel_image_data_fn)

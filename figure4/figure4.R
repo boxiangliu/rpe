@@ -11,6 +11,8 @@ rpe_specific_eQTL_rds = '../processed_data/rpe_specific_eQTL/specific_eGenes_v2/
 gtex_tissue_color_fn = '../data/gtex/gtex_tissue_colors.txt'
 fig_dir = '../figures/figure4/'
 if (!dir.exists(fig_dir)) {dir.create(fig_dir,recursive=TRUE)}
+out_dir = '../processed_data/figure4/'
+if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
 
 plot_blank = function(){
 	ggplot() + geom_blank()
@@ -50,7 +52,7 @@ plot_FDR = function(data){
 		coord_flip()
 }
 
-plot_rpe_specific_eQTL = function(rpe_specific_eQTL_rds,labels){
+plot_rpe_specific_eQTL = function(rpe_specific_eQTL_rds,labels,out_dir = NULL){
 	tissue_color = read_tissue_color(gtex_tissue_color_fn)
 	tissue_abbreviation = read_tissue_abbreviation(gtex_tissue_color_fn)
 
@@ -66,6 +68,9 @@ plot_rpe_specific_eQTL = function(rpe_specific_eQTL_rds,labels){
 	p = foreach(gene = gene_list)%do%{
 		data = make_plot_data(gene, GTEx, glucose_eGenes, galactose_eGenes)
 		gene_name = GTEx_eQTL[gene_id==gene,unique(gene_name)]
+		if (!is.null(out_dir)) {
+			fwrite(data, sprintf('%s/%s.txt',out_dir,gene_name),sep='\t')
+		}
 		plot_FDR(data) + ggtitle(gene_name) + theme(axis.title=element_text(size=12))
 	}
 
@@ -80,7 +85,7 @@ plot_entire_figure = function(labels = letters[1:7]){
 	glucose_eQTL_plot = plot_treatment_specific_eQTL(glucose_eQTL_rds,genes = c('ABCA1'),labels = labels[2])
 	galactose_eQTL_plot = plot_treatment_specific_eQTL(galactose_eQTL_rds,genes = c('PRPF8'),labels = labels[3])
 	shared_eQTL_plot = plot_treatment_specific_eQTL(shared_eQTL_rds,genes = c('RGR'),labels=labels[4])
-	rpe_specific_eQTL = plot_rpe_specific_eQTL(rpe_specific_eQTL_rds,labels=labels[5:7])
+	rpe_specific_eQTL = plot_rpe_specific_eQTL(rpe_specific_eQTL_rds,labels=labels[5:7],out_dir)
 
 	topright = plot_grid(glucose_eQTL_plot,galactose_eQTL_plot,shared_eQTL_plot,nrow=3,align='v',labels = c('','',''))
 	top = plot_grid(blank,topright,nrow=1,rel_widths = c(4,2.5), align = 'h',labels = c(labels[1],''))
@@ -95,3 +100,16 @@ save_plot(fig_fn,entire,base_height=8.5,base_width=7)
 entire = plot_entire_figure(labels=LETTERS[1:7])
 fig_fn = sprintf('%s/figure4_missingA_uc.pdf',fig_dir)
 save_plot(fig_fn,entire,base_height=8.5,base_width=7)
+
+# Output underlying data:
+glucose_eQTL = readRDS(glucose_eQTL_rds)
+fwrite(glucose_eQTL[['ABCA1']]$data,sprintf('%s/ABCA1.txt',out_dir),sep='\t')
+
+galactose_eQTL = readRDS(galactose_eQTL_rds)
+fwrite(galactose_eQTL[['PRPF8']]$data,sprintf('%s/PRPF8.txt',out_dir),sep='\t')
+
+shared_eQTL = readRDS(shared_eQTL_rds)
+fwrite(shared_eQTL[['RGR']]$data,sprintf('%s/RGR.txt',out_dir),sep='\t')
+
+rpe_specific_eQTL = readRDS(rpe_specific_eQTL_rds)
+rpe_specific_eQTL

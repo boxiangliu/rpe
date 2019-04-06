@@ -78,6 +78,8 @@ plot_coefficient_pval_multiple = function(x){
 # Read data:
 amd = read_ldscore_regression(amd_fn)
 myopia = read_ldscore_regression(myopia_fn)
+fwrite(amd[,list(Category,Coefficient_pval)],'../processed_data/disease_enrichment/ld_score_regression/plot_heritability_enrichment/amd_coefficient_pval.txt', sep = '\t')
+fwrite(myopia[,list(Category,Coefficient_pval)],'../processed_data/disease_enrichment/ld_score_regression/plot_heritability_enrichment/myopia_coefficient_pval.txt', sep = '\t')
 
 # Plot cofficient p-value:
 p1=plot_coefficient_pval(amd)
