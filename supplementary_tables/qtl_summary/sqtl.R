@@ -10,8 +10,10 @@ source('utils/genome_annotation.R')
 exon_file = '../processed_data/sqtl/fastQTL/adjust_pvalue/gencode19_exons.gene_id.txt.gz'
 out_dir = '../processed_data/supplementary_tables/qtl_summary/sqtl/'
 if (!dir.exists(out_dir)) {dir.create(out_dir,recursive=TRUE)}
-glucose_fn = '../processed_data/sqtl/fastQTL/permutation/glucose/all.permutation.txt.gz'
-galactose_fn = '../processed_data/sqtl/fastQTL/permutation/galactose/all.permutation.txt.gz'
+glucose_perm_fn = '../processed_data/sqtl/fastQTL/permutation/glucose/all.permutation.txt.gz'
+galactose_perm_fn = '../processed_data/sqtl/fastQTL/permutation/galactose/all.permutation.txt.gz'
+glucose_top_intron_fn = '../processed_data/sqtl/fastQTL/adjust_pvalue/glucose/top_intron.txt'
+galactose_top_intron_fn = '../processed_data/sqtl/fastQTL/adjust_pvalue/galactose/top_intron.txt'
 
 
 read_fastqtl_permutation_mode = function(fn){
@@ -19,6 +21,21 @@ read_fastqtl_permutation_mode = function(fn){
 	setDT(fastqtl)
 	setnames(fastqtl,c('intron','snp','beta','pval'))
 	return(fastqtl)
+}
+
+read_sqtl_result = function(fn){
+	sqtl = fread(fn,header=TRUE)
+	appendix = foreach(i = seq(nrow(sqtl)),.combine='rbind')%dopar%{
+		if (str_detect(sqtl$gene_id[i],',')){
+			gene_id = str_split(sqtl$gene_id[i],',')[[1]]
+			data.table(gene_id = gene_id,sqtl[i,list(intron,pval,bonf,fdr)])
+		} else {
+			data.table()
+		}
+	}
+	sqtl = sqtl[!str_detect(gene_id,',')]
+	sqtl = rbind(sqtl,appendix)
+	return(sqtl)
 }
 
 extract_intron_cluster = function(intron){
@@ -29,7 +46,7 @@ extract_intron_cluster = function(intron){
 bonferroni_correction_by_intron_cluster = function(x){
 	x = copy(x)
 	x[,n := .N, by = 'cluster']
-	x[,bonf := pval*n]
+	x[,bonf := pval*n] 
 	x[,bonf := ifelse(bonf > 1, 1, bonf)]
 	return(x$bonf)
 }
@@ -68,20 +85,33 @@ select_one_annotation_per_gene = function(sqtl){
 	return(sqtl)
 }
 
-fn_list = c(glucose = glucose_fn, galactose = galactose_fn)
+sqtl_perm_fn_list = c(glucose = glucose_perm_fn, galactose = galactose_perm_fn)
+top_intron_fn_list = c(glucose = glucose_top_intron_fn,galactose = galactose_top_intron_fn)
+gene_annotation = read_gene_annotation()
 
-for (i in seq_along(fn_list)){
-	fn = fn_list[i]
-	condition = names(fn_list)[i]
-	sqtl = read_fastqtl_permutation_mode(fn)
-	sqtl$cluster = extract_intron_cluster(sqtl$intron)
-	sqtl$bonf = bonferroni_correction_by_intron_cluster(sqtl)
-	sqtl = select_top_intron_per_cluster(sqtl)
-	sqtl$fdr = p.adjust(sqtl$bonf, method='fdr')
-	significant_sqtl = sqtl[fdr<=0.05]
+for (i in seq_along(sqtl_perm_fn_list)){
+	sqtl_perm_fn = sqtl_perm_fn_list[i]
+	top_intron_fn = top_intron_fn_list[i]
+	condition = names(sqtl_perm_fn_list)[i]
+	sqtl_perm = read_fastqtl_permutation_mode(sqtl_perm_fn)
+
+	top_intron = read_sqtl_result(top_intron_fn)
+	top_intron = classify_genes(top_intron, gene_annotation)
+	top_intron[is.na(type),type:='unannotated']
+	top_intron = select_one_annotation_per_gene(top_intron)
+	
+	sqtl_perm$cluster = extract_intron_cluster(sqtl_perm$intron)
+	sqtl_perm$bonf = bonferroni_correction_by_intron_cluster(sqtl_perm)
+	sqtl_perm = select_top_intron_per_cluster(sqtl_perm)
+	sqtl_perm$fdr = p.adjust(sqtl_perm$bonf, method='fdr')
+
+	significant_sqtl = sqtl_perm[fdr<=0.05]
 	significant_sqtl$bonf = NULL
 	significant_sqtl$fdr = NULL
 	significant_sqtl$cluster = NULL
+
+	# Select only protein_coding and lincRNA
+	significant_sqtl = significant_sqtl[intron %in% top_intron[type %in% c('protein_coding','lincRNA'),intron]]
 	out_fn = sprintf('%s/sqtl_%s_fdr0.05.txt',out_dir,condition)
 	fwrite(significant_sqtl,out_fn,sep='\t')
 }
